@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>WooCommerceClient</RootNamespace>
+    <AssemblyName>WooCommerceClient</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Visma.BusinessModel, Version=11.11.0.0, Culture=neutral, PublicKeyToken=302cf25cc8856685, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Projects\InfoSolution\VBS\VBS13_10_2\Visma.BusinessModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Visma.BusinessModel.Meta, Version=11.11.0.0, Culture=neutral, PublicKeyToken=302cf25cc8856685, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Projects\InfoSolution\VBS\VBS13_10_2\Visma.BusinessModel.Meta.dll</HintPath>
+    </Reference>
+    <Reference Include="Visma.BusinessServices.Client, Version=11.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Projects\InfoSolution\VBS\VBS13_10_2\Visma.BusinessServices.Client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\Islug.cs" />
+    <Compile Include="Models\IWCObject.cs" />
+    <Compile Include="Services\BaseClass.cs" />
+    <Compile Include="Services\Categories.cs" />
+    <Compile Include="Services\Constants.cs" />
+    <Compile Include="Models\Base\BaseObject.cs" />
+    <Compile Include="Models\Base\Common.cs" />
+    <Compile Include="Models\Base\Extension.cs" />
+    <Compile Include="Models\Base\HMAC-SHA256.cs" />
+    <Compile Include="Models\Base\SHA1.cs" />
+    <Compile Include="Models\OrderStatus.cs" />
+    <Compile Include="Models\RegionCountryRelation.cs" />
+    <Compile Include="Models\Translations.cs" />
+    <Compile Include="Models\Visma\VismaActor.cs" />
+    <Compile Include="Models\Visma\VismaAttribute.cs" />
+    <Compile Include="Models\Visma\VismaCampaign.cs" />
+    <Compile Include="Models\Coupon.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderNote.cs" />
+    <Compile Include="Models\OrderRefund.cs" />
+    <Compile Include="Models\PaymentGateway.cs" />
+    <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\ProductAttribute.cs" />
+    <Compile Include="Models\ProductCategory.cs" />
+    <Compile Include="Models\ProductTag.cs" />
+    <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\Setting.cs" />
+    <Compile Include="Models\ShippingClass.cs" />
+    <Compile Include="Models\ShippingMethod.cs" />
+    <Compile Include="Models\ShippingZone.cs" />
+    <Compile Include="Models\SystemStatus.cs" />
+    <Compile Include="Models\TaxClass.cs" />
+    <Compile Include="Models\TaxRate.cs" />
+    <Compile Include="Models\Variation.cs" />
+    <Compile Include="Models\Visma\VismaOrder.cs" />
+    <Compile Include="Models\Visma\VismaOrderStatus.cs" />
+    <Compile Include="Models\Visma\VismaProducer.cs" />
+    <Compile Include="Models\Visma\VismaProduct.cs" />
+    <Compile Include="Models\Visma\VismaProductDetails.cs" />
+    <Compile Include="Models\Visma\VismaStock.cs" />
+    <Compile Include="Models\Visma\Sync.cs" />
+    <Compile Include="Models\WCObject.cs" />
+    <Compile Include="Models\Webhook.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\DBaccess.cs" />
+    <Compile Include="Services\MyRestAPI.cs" />
+    <Compile Include="Services\Orders.cs" />
+    <Compile Include="Services\Products.cs" />
+    <Compile Include="Services\RestAPI.cs" />
+    <Compile Include="Services\RestSharpClient.cs" />
+    <Compile Include="Services\Attributes.cs" />
+    <Compile Include="Services\SpecificHandling\VBSConvert.cs" />
+    <Compile Include="Services\SpecificHandling\IOrderConvert.cs" />
+    <Compile Include="Services\SpecificHandling\Lieu_Dit.cs" />
+    <Compile Include="Services\Tags.cs" />
+    <Compile Include="Services\VBSconnection.cs" />
+    <Compile Include="Services\Utils.cs" />
+    <Compile Include="Services\WC_API.cs" />
+    <Compile Include="Services\WooCommerceHelpers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WooCommerceClient", "WooCommerceClient\WooCommerceClient.csproj", "{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{E7E7E5EC-BD87-4D84-B927-7A5D4EA3558A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F24DEA0C-1724-435B-8E2A-8C22AF9E8BE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7E7E5EC-BD87-4D84-B927-7A5D4EA3558A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7E7E5EC-BD87-4D84-B927-7A5D4EA3558A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7E7E5EC-BD87-4D84-B927-7A5D4EA3558A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E7E5EC-BD87-4D84-B927-7A5D4EA3558A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0092FBDD-ECF8-4DD4-A117-F6EDBBF63066}
+	EndGlobalSection
+EndGlobal
