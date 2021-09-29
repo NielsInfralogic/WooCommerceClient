@@ -80,9 +80,9 @@ namespace WooCommerceClient.Models
         /// <summary>
         /// Point to master product ID
         /// </summary>
-        [IgnoreDataMember]
+      //  [IgnoreDataMember]
         //[DataMember(EmitDefaultValue = false)]
-        public Translations translations { get; set; } = null;
+    //    public Translations translations { get; set; } = null;
 
 
         [IgnoreDataMember]

@@ -62,7 +62,7 @@ namespace WooCommerceClient
                        Utils.ReadConfigString("WooCommerceKey", ""),
                        Utils.ReadConfigString("WooCommerceSecret", ""));
             WCObject wc = new WCObject(rest);
-          
+
             //Get all products categoires.
             List<ProductTag> tags = new List<ProductTag>();
 
@@ -176,7 +176,7 @@ namespace WooCommerceClient
                     break;
                 foreach (ProductAttributeTerm a in attributespage)
                 {
-                     Utils.WriteLog($"Attribute {a.name} {a.slug} id:{a.id}");
+                    Utils.WriteLog($"Attribute {a.name} {a.slug} id:{a.id}");
                     terms.Add(a);
                 }
                 if (attributespage.Count < per_page)
@@ -224,16 +224,16 @@ namespace WooCommerceClient
                 {
                     Utils.WriteLog($"Product.GetAll - offset {offset}..");
 
-                    var productspage = await wc.Product.GetAll(new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "da" } } );
+                    var productspage = await wc.Product.GetAll(new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "da" } });
                     if (productspage == null || productspage?.Count == 0)
                         break;
                     foreach (Product p in productspage)
                         products.Add(p);
                     offset += per_page;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Utils.WriteLog($"Error in wc.Product.GetAll - {ex.Message}");                   
+                    Utils.WriteLog($"Error in wc.Product.GetAll - {ex.Message}");
                     return null;
                 }
             }
@@ -245,14 +245,14 @@ namespace WooCommerceClient
                 {
                     try
                     {
-                        
+
 
                         var productspage = await wc.Product.GetAll(new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "en" } });
                         if (productspage == null || productspage?.Count == 0)
                             break;
                         foreach (Product p in productspage)
                         {
-                            Utils.WriteLog($"Product.GetAll - offset {offset} {p.id}..");
+                            //  Utils.WriteLog($"Product.GetAll - offset {offset} {p.id}..");
                             products.Add(p);
                         }
 
@@ -330,7 +330,7 @@ namespace WooCommerceClient
                        Utils.ReadConfigString("WooCommerceSecret", ""));
             WCObject wc = new WCObject(rest);
 
-            Order order = await wc.Order.Get(id);                         
+            Order order = await wc.Order.Get(id);
 
             return order;
         }
@@ -481,7 +481,7 @@ namespace WooCommerceClient
             {
                 settings = await wc.Setting.GetAll();
             }
-            catch(Exception  ex)
+            catch (Exception ex)
             {
                 Utils.WriteLog($"Unable to connect to webshop - {ex.Message}");
             }

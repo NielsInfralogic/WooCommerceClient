@@ -24,8 +24,10 @@ namespace WooCommerceClient.Services
 
                 foreach (ProductTag tag in tags)
                 {
-                    ProductTag existingTag = wooCommerceTags.FirstOrDefault(p => 
-                        (p.slug == tag.slug || GetAlcoholValueWithoutPrefix(p.name) == GetAlcoholValueWithoutPrefix(tag.name)) 
+                    tag.slug = null;
+                    Dictionary<string, string> parameters = string.IsNullOrEmpty(tag.lang) ? null : new Dictionary<string, string>() { { "lang", tag.lang } }; ;
+                    // Tags do not have visma-id - compare name directly..
+                    ProductTag existingTag = wooCommerceTags.FirstOrDefault(p => (GetAlcoholValueWithoutPrefix(p.name) == GetAlcoholValueWithoutPrefix(tag.name))
                         && p.lang == tag.lang);
                     ProductTag newTag = null;
                     if (existingTag == null)
@@ -33,7 +35,8 @@ namespace WooCommerceClient.Services
                         try
                         {
                             Utils.WriteLog($"Sync'ing new tag {tag.name} {tag.slug} {tag.lang}..");
-                            newTag = await wc.Tag.Add(tag);
+
+                            newTag = await wc.Tag.Add(tag, parameters);
 
                         }
                         catch (Exception ex)
@@ -54,18 +57,18 @@ namespace WooCommerceClient.Services
                         Utils.WriteLog($"Sync'ing existing tag id:{tag.id} {tag.name} {tag.slug} {tag.lang}..");
                         if (tag.lang == "en")
                         {
-                            ProductTag tag_da = wooCommerceTags.FirstOrDefault(p => p.lang == "da" &&
-                                GetAlcoholValueWithoutPrefix(p.name) == GetAlcoholValueWithoutPrefix(tag.name));
+
+                            ProductTag tag_da = wooCommerceTags.FirstOrDefault(p => p.lang == "da" && GetAlcoholValueWithoutPrefix(p.name) == GetAlcoholValueWithoutPrefix(tag.name));
                             if (tag_da != null)
                                 tag.translation_of = tag_da.id.Value.ToString();
                         }
                         tag.id = existingTag.id;
-                        CheckAndUpdateAlcoholPrefix(tag);
-                        await wc.Tag.Update(existingTag.id.Value, tag);
+                       // CheckAndUpdateAlcoholPrefix(tag);
+                        await wc.Tag.Update(existingTag.id.Value, tag, parameters);
                     }
                 }
 
-                // SET LANGUAGE LINKS.
+                // SET LANGUAGE LINKS.(Read back first to get newsly created IDs)
                 wooCommerceTags = await WooCommerceHelpers.GetWooCommerceTags();
                 if (wooCommerceTags != null)
                 {
@@ -87,7 +90,7 @@ namespace WooCommerceClient.Services
                     {
                         if (tag.lang == "en")
                         {
-                            await wc.Tag.Update(tag.id.Value, tag);
+                            await wc.Tag.Update(tag.id.Value, tag, new Dictionary<string, string>() { { "lang", "en" } });
                             Utils.WriteLog($"Updating lang attributes on  existing tag {tag.id} {tag.name} {tag.slug} {tag.lang}  {tag.translation_of}..");
                         }
                     }
@@ -107,18 +110,18 @@ namespace WooCommerceClient.Services
 
         private static void CheckAndUpdateAlcoholPrefix(ProductTag tag)
         {
-            string old_prefix = tag.lang != "da" ? 
+            string old_prefix = tag.lang != "da" ?
                 Constants.Old_AlcoholPrefixEn : Constants.Old_AlcoholPrefix;
-            string prefix = tag.lang != "da" ? 
+            string prefix = tag.lang != "da" ?
                 Constants.AlcoholPrefixEn : Constants.AlcoholPrefix;
             if (tag.name.StartsWith(old_prefix))
-                tag.name = tag.name.Replace(old_prefix, prefix);
+                tag.name = tag.name.Replace(old_prefix, prefix).Trim();
         }
 
         private static string GetAlcoholValueWithoutPrefix(string name)
         {
             return name.Replace(Constants.AlcoholPrefix, "").Replace(Constants.AlcoholPrefixEn, "").
-                Replace(Constants.Old_AlcoholPrefix, "").Replace(Constants.Old_AlcoholPrefixEn, "");
+                        Replace(Constants.Old_AlcoholPrefix, "").Replace(Constants.Old_AlcoholPrefixEn, "").Trim();
         }
 
         internal static void Sync(DBaccess db, out string errmsg)
@@ -138,6 +141,23 @@ namespace WooCommerceClient.Services
             //  tags.Add(new ProductTag() { name = Constants.NoDiscount, slug = Utils.SanitizeSlugName(Constants.NoDiscount) });
 
             bool res = SyncTags(tags).Result;
+        }
+
+        public static bool DeleteAllTags()
+        {
+            MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
+                        Utils.ReadConfigString("WooCommerceKey", ""),
+                        Utils.ReadConfigString("WooCommerceSecret", ""));
+            WCObject wc = new WCObject(rest);
+
+            List<ProductTag> wooCommerceTags = WooCommerceHelpers.GetWooCommerceTags().Result;
+
+            foreach (ProductTag tag in wooCommerceTags)
+            {
+                 var x = wc.Tag.Delete(tag.id.Value, true).Result;
+            }
+
+            return true;
         }
     }
 }

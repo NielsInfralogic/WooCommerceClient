@@ -33,8 +33,10 @@ namespace WooCommerceClient
         public const string AttributeNameProducer = "Producent";
         public const string AttributeNameProducerEn = "Producer";
 
-        public const string AlcoholPrefix = "Indhold: ";
-        public const string AlcoholPrefixEn = "Content: ";
+        // public const string AlcoholPrefix = "Indhold: ";
+        // public const string AlcoholPrefixEn = "Content: ";
+        public const string AlcoholPrefix = "Alkohol: ";
+        public const string AlcoholPrefixEn = "Alcohol: ";
         public const string Old_AlcoholPrefix = "Alkohol: ";
         public const string Old_AlcoholPrefixEn = "Alcohol: ";
         public const string VolumePrefix = "Indhold: ";

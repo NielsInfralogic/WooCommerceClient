@@ -41,9 +41,9 @@ namespace WooCommerceClient.Services
             "SELECT DISTINCT Prod.ProdNo  FROM Prod WITH (NOLOCK) " +
             "INNER JOIN FreeInf1 WITH (NOLOCK) ON FreeInf1.ProdNo=Prod.ProdNo AND FreeInf1.InfCatNo= 45 " +
             "WHERE FreeInf1.#9#=9 ";
- 
+
         public static string queryGetProductList =
-            "SELECT DISTINCT Prod.ProdNo, Prod.StSaleUn, ISNULL(Prod.WebPg2,'') as WebPg2, Prod.ProdTp4, Prod.ProdTp2, " +
+            "SELECT DISTINCT Prod.ProdNo, Prod.StSaleUn, ISNULL(Prod.WebPg2,'') as WebPg2, Prod.Gr10, Prod.ProdTp4, Prod.ProdTp2, " +
             "ISNULL(TXT2.Txt,'') as gruppe, " +
             "ISNULL(TXT3.Txt,'') as type, " +
             "ISNULL((SELECT TOP 1 ISNULL(ScanCd.SCd, '') FROM ScanCd WHERE ScanCd.ProdNo = Prod.ProdNo ORDER BY ChDt Desc),''), " +
@@ -87,8 +87,8 @@ namespace WooCommerceClient.Services
            "WHERE Prod.Descr<> '' AND Prod.Gr7<7 AND FreeInf1.#9#=1 "; //FreeInf1.Val1<>0  AND FreeInf1.Val1<>10";
 
         public static string queryGetProductBOM =
-            "SELECT DISTINCT Struct.SubProd,Struct.NoPerStr,Prod.Descr,ISNULL(Prod.WebPg2,''),Struct.LnNo FROM Struct INNER JOIN Prod ON Prod.ProdNo=Struct.SubProd WHERE Struct.ProdNo='#1#' ORDER BY Struct.LnNo";
-        
+            "SELECT DISTINCT Struct.SubProd,Struct.NoPerStr,Prod.Descr,ISNULL(Prod.WebPg2,''),Prod.Wdtu,Prod.Gr10,Struct.LnNo FROM Struct INNER JOIN Prod ON Prod.ProdNo=Struct.SubProd WHERE Struct.ProdNo='#1#' ORDER BY Struct.LnNo";
+
         public static string queryGetStock =
              "SELECT ISNULL(SUM((Stcbal.Bal + StcBal.StcInc - StcBal.ShpRsv)),0) FROM StcBal " +
              "INNER JOIN Prod ON stcBal.ProdNo = Prod.ProdNo " +
@@ -111,18 +111,18 @@ namespace WooCommerceClient.Services
          "AND Prodno = '#1#' " +
          "AND SalePr>0 AND  (FrDt<= #2# OR FrDt=0) AND (ToDt >= #2# OR ToDt = 0)";
 
-     /*   public static string queryGetCategories =
-           "SELECT DISTINCT ProdCat.PrCatNo, ISNULL(TXT5.txt, ISNULL(ProdCat.Descr, '')),0,1 FROM ProdCat " +
-           "LEFT OUTER JOIN Txt AS TXT5 ON Txt5.Lang = 45 AND Txt5.TxtTp= 40 AND TXT5.TxtNo= ProdCat.PrCatNo " +
-           "WHERE Descr<> '' AND PrCatNo >=1 AND PrCatNo <= 999 " +
-           "UNION " +
-           "SELECT DISTINCT ProdCat.PrCatNo, ISNULL(TXT4.txt, ISNULL(ProdCat.Descr,'')), ProdCat.MainPrC,2 FROM ProdCat " +
-            "LEFT OUTER JOIN Txt AS TXT4 ON Txt4.Lang = 45 AND Txt4.TxtTp= 36 AND TXT4.TxtNo= ProdCat.PrCatNo " +
-            "WHERE Descr<> '' AND PrCatNo >=1000 AND PrCatNo <= 1999";
-     */
-     /*   public static string queryGetTags =
-            "SELECT DISTINCT  Txt.Txt  from Txt WHERE Txt.Lang = 45 AND Txt.TxtTp= 72 ";
-     */
+        /*   public static string queryGetCategories =
+              "SELECT DISTINCT ProdCat.PrCatNo, ISNULL(TXT5.txt, ISNULL(ProdCat.Descr, '')),0,1 FROM ProdCat " +
+              "LEFT OUTER JOIN Txt AS TXT5 ON Txt5.Lang = 45 AND Txt5.TxtTp= 40 AND TXT5.TxtNo= ProdCat.PrCatNo " +
+              "WHERE Descr<> '' AND PrCatNo >=1 AND PrCatNo <= 999 " +
+              "UNION " +
+              "SELECT DISTINCT ProdCat.PrCatNo, ISNULL(TXT4.txt, ISNULL(ProdCat.Descr,'')), ProdCat.MainPrC,2 FROM ProdCat " +
+               "LEFT OUTER JOIN Txt AS TXT4 ON Txt4.Lang = 45 AND Txt4.TxtTp= 36 AND TXT4.TxtNo= ProdCat.PrCatNo " +
+               "WHERE Descr<> '' AND PrCatNo >=1000 AND PrCatNo <= 1999";
+        */
+        /*   public static string queryGetTags =
+               "SELECT DISTINCT  Txt.Txt  from Txt WHERE Txt.Lang = 45 AND Txt.TxtTp= 72 ";
+        */
 
         public static string queryGetProductGrapes =
             "SELECT DISTINCT txt.txt,FreeInf1.Gr3 from FreeInf1 INNER JOIN Txt on Txt.TxtNo=FreeInf1.Gr3 AND Txt.lang = #8# AND Txt.Txttp=159 " +
@@ -243,55 +243,55 @@ namespace WooCommerceClient.Services
 
         }
 
-   /*     public bool GetTags(ref List<ProductTag> tags, out string errmsg)
-        {
-            tags.Clear();
-            errmsg = "";
+        /*     public bool GetTags(ref List<ProductTag> tags, out string errmsg)
+             {
+                 tags.Clear();
+                 errmsg = "";
 
-            string sql = queryGetTags;
+                 string sql = queryGetTags;
 
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+                 SqlCommand command = new SqlCommand(sql, connection)
+                 {
+                     CommandType = CommandType.Text,
+                     CommandTimeout = 600
+                 };
 
-            SqlDataReader reader = null;
+                 SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+                 try
+                 {
+                     if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                         connection.Open();
 
-                reader = command.ExecuteReader();
+                     reader = command.ExecuteReader();
 
-                while (reader.Read())
-                {
-                    string name = reader.GetString(0);
-                    tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name) });
-                }
+                     while (reader.Read())
+                     {
+                         string name = reader.GetString(0);
+                         tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name) });
+                     }
 
-            }
-            catch (Exception ex)
-            {
-                errmsg = ex.Message;
+                 }
+                 catch (Exception ex)
+                 {
+                     errmsg = ex.Message;
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
+                     return false;
+                 }
+                 finally
+                 {
+                     if (reader != null)
+                         reader.Close();
+                     if (connection.State == ConnectionState.Open)
+                         connection.Close();
+                     command.Dispose();
+                 }
 
-            tags.Add(new ProductTag() { name = "Økologisk", slug = Utils.SanitizeSlugName("Økologisk") });
+                 tags.Add(new ProductTag() { name = "Økologisk", slug = Utils.SanitizeSlugName("Økologisk") });
 
-            return true;
-        }
-   */
+                 return true;
+             }
+        */
 
         public bool GetAttributeTermsForGrapes(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
@@ -320,13 +320,13 @@ namespace WooCommerceClient.Services
                 {
                     string name = reader.GetString(0);
                     int vid = reader.GetInt32(1);
-                    attributeTerms.Add(new ProductAttributeTerm() 
-                    { 
-                        name = name, 
+                    attributeTerms.Add(new ProductAttributeTerm()
+                    {
+                        name = name,
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                         visma_id = vid,
                         lang = lang,
-                        translations = new Translations()
+                        //translations = new Translations()
                     });
                 }
 
@@ -379,13 +379,13 @@ namespace WooCommerceClient.Services
                     string name = y == 1 ? "N.V." : y.ToString();
 
                     attributeTerms.Add(
-                        new ProductAttributeTerm() 
-                        { 
+                        new ProductAttributeTerm()
+                        {
                             name = name,
                             slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                             visma_id = y,
                             lang = lang,
-                            translations = new Translations()
+                            //translations = new Translations()
                         });
                 }
 
@@ -434,13 +434,13 @@ namespace WooCommerceClient.Services
                     sql = "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),R6.Rno  FROM R6 " +
                             "INNER JOIN Prod ON Prod.R6=R6.RNo " +
                             "INNER JOIN FreeInf1 F1 ON F1.ProdNo=Prod.ProdNo AND F1.InfCatNo=45 " +
-                            "LEFT OUTER JOIN FreeInf1 F2 ON F2.R6=R6.Rno AND F2.InfCatNo=81 " + 
+                            "LEFT OUTER JOIN FreeInf1 F2 ON F2.R6=R6.Rno AND F2.InfCatNo=81 " +
                             "WHERE R6.Nm<>'' AND  Prod.Gr7 < 7 AND Prod.Descr <> '' AND F1.Val1 <> 0 " +
                             "ORDER BY R6.Nm";
                 else
-                    sql =   "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),Rno FROM R6 " +
+                    sql = "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),Rno FROM R6 " +
                             "LEFT OUTER JOIN FreeInf1 F2 ON F2.R6=R6.Rno AND F2.InfCatNo=81 " +
-                            "WHERE R6.Nm <> '' AND LTRIM(RTRIM(R6.Inf2))='' " + 	 
+                            "WHERE R6.Nm <> '' AND LTRIM(RTRIM(R6.Inf2))='' " +
                             "ORDER BY R6.Nm";
             }
             SqlCommand command = new SqlCommand(sql, connection)
@@ -463,14 +463,14 @@ namespace WooCommerceClient.Services
                     string name = reader.GetString(0).Replace("&", "&amp;");
                     string desc = Utils.ReadMemoFile(reader.GetString(1));
                     int vid = reader.GetInt32(2);
-                    attributeTerms.Add(new ProductAttributeTerm() 
-                    { 
-                        name = name, 
+                    attributeTerms.Add(new ProductAttributeTerm()
+                    {
+                        name = name,
                         description = desc,
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
-                        visma_id = vid, 
-                        lang = lang, 
-                        translations = new Translations()
+                        visma_id = vid,
+                        lang = lang,
+                        //translations = new Translations()
                     });
                 }
 
@@ -490,7 +490,7 @@ namespace WooCommerceClient.Services
                 command.Dispose();
             }
 
-            
+
 
             return true;
         }
@@ -543,13 +543,13 @@ namespace WooCommerceClient.Services
         }
 
 
-        public bool GetAttributeTermsForProducerToDelete (ref List<ProductAttributeTerm> attributeTermsToDelete, 
+        public bool GetAttributeTermsForProducerToDelete(ref List<ProductAttributeTerm> attributeTermsToDelete,
                                                                out string errmsg)
         {
             attributeTermsToDelete.Clear();
             errmsg = "";
 
-            string  sql = "SELECT DISTINCT Nm,NoteNm,Rno FROM R6 WHERE Nm<>'' AND LTRIM(RTRIM(Inf2))<>'' ORDER BY Nm";
+            string sql = "SELECT DISTINCT Nm,NoteNm,Rno FROM R6 WHERE Nm<>'' AND LTRIM(RTRIM(Inf2))<>'' ORDER BY Nm";
 
             SqlCommand command = new SqlCommand(sql, connection)
             {
@@ -622,13 +622,13 @@ namespace WooCommerceClient.Services
                 {
                     string name = reader.GetString(0);
                     int vid = reader.GetInt32(1);
-                    attributeTerms.Add(new ProductAttributeTerm() 
-                    { 
+                    attributeTerms.Add(new ProductAttributeTerm()
+                    {
                         name = name,
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                         visma_id = vid,
                         lang = lang,
-                        translations = new Translations()
+                        //translations = new Translations()
                     });
                 }
 
@@ -687,13 +687,13 @@ namespace WooCommerceClient.Services
                     string country = reader.GetString(1);
                     int vid = reader.GetInt32(2);
                     regionCountryRelationList.Add(new RegionCountryRelation() { Region = name, Country = country });
-                    attributeTerms.Add(new ProductAttributeTerm() 
-                    { 
+                    attributeTerms.Add(new ProductAttributeTerm()
+                    {
                         name = name,
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
-                        visma_id =vid,
+                        visma_id = vid,
                         lang = lang,
-                        translations = new Translations()
+                        //translations = new Translations()
                     });
                 }
 
@@ -717,53 +717,53 @@ namespace WooCommerceClient.Services
         }
 
 
-     /*   public bool GetAttributeTermsForCounty(ref List<ProductAttributeTerm> attributeTerms, out string errmsg)
-        {
-            attributeTerms.Clear();
-            errmsg = "";
+        /*   public bool GetAttributeTermsForCounty(ref List<ProductAttributeTerm> attributeTerms, out string errmsg)
+           {
+               attributeTerms.Clear();
+               errmsg = "";
 
-            string sql = "SELECT DISTINCT txt,CAST(txtno as int) from txt where TxtTp=37 and Lang = 45 ";
+               string sql = "SELECT DISTINCT txt,CAST(txtno as int) from txt where TxtTp=37 and Lang = 45 ";
 
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+               SqlCommand command = new SqlCommand(sql, connection)
+               {
+                   CommandType = CommandType.Text,
+                   CommandTimeout = 600
+               };
 
-            SqlDataReader reader = null;
+               SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+               try
+               {
+                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                       connection.Open();
 
-                reader = command.ExecuteReader();
+                   reader = command.ExecuteReader();
 
-                while (reader.Read())
-                {
-                    string name = reader.GetString(0);
-                    int vid = reader.GetInt32(1);
-                    attributeTerms.Add(new ProductAttributeTerm() { name = name, slug = Utils.SanitizeSlugName(name), visma_id = vid });
-                }
+                   while (reader.Read())
+                   {
+                       string name = reader.GetString(0);
+                       int vid = reader.GetInt32(1);
+                       attributeTerms.Add(new ProductAttributeTerm() { name = name, slug = Utils.SanitizeSlugName(name), visma_id = vid });
+                   }
 
-            }
-            catch (Exception ex)
-            {
-                errmsg = ex.Message;
+               }
+               catch (Exception ex)
+               {
+                   errmsg = ex.Message;
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
+                   return false;
+               }
+               finally
+               {
+                   if (reader != null)
+                       reader.Close();
+                   if (connection.State == ConnectionState.Open)
+                       connection.Close();
+                   command.Dispose();
+               }
 
-            return true;
-        }*/
+               return true;
+           }*/
 
         public bool GetAttributeTermsForType(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
@@ -799,9 +799,9 @@ namespace WooCommerceClient.Services
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                         visma_id = vid,
                         lang = lang,
-                        translations = new Translations()
+                        //translations = new Translations()
                     });
-                 
+
                 }
 
             }
@@ -822,102 +822,102 @@ namespace WooCommerceClient.Services
 
             return true;
         }
-        
-  /*      public bool GetTagsForYear(ref List<ProductTag> tags, int langNo, out string errmsg)
-        {
-            errmsg = "";
 
-            string sql = "SELECT DISTINCT ProdTp4 FROM Prod WHERE ProdTp4>0";
+        /*      public bool GetTagsForYear(ref List<ProductTag> tags, int langNo, out string errmsg)
+              {
+                  errmsg = "";
+
+                  string sql = "SELECT DISTINCT ProdTp4 FROM Prod WHERE ProdTp4>0";
 
 
 
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+                  SqlCommand command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
 
-            SqlDataReader reader = null;
+                  SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
 
-                reader = command.ExecuteReader();
+                      reader = command.ExecuteReader();
 
-                while (reader.Read())
-                {
-                    int y = reader.GetInt32(0);
-                    string name = Constants.YearPrefix + ( y == 1 ? "N.V." : y.ToString());
-                    tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
-                }
+                      while (reader.Read())
+                      {
+                          int y = reader.GetInt32(0);
+                          string name = Constants.YearPrefix + ( y == 1 ? "N.V." : y.ToString());
+                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
+                      }
 
-            }
-            catch (Exception ex)
-            {
-                errmsg = ex.Message;
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = ex.Message;
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection.State == ConnectionState.Open)
+                          connection.Close();
+                      command.Dispose();
+                  }
 
-            return true;
-        }
-  */
-  /*      public bool GetTagsForVolume(ref List<ProductTag> tags, int langNo, out string errmsg)
-        {
-            errmsg = "";
+                  return true;
+              }
+        */
+        /*      public bool GetTagsForVolume(ref List<ProductTag> tags, int langNo, out string errmsg)
+              {
+                  errmsg = "";
 
-            string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
+                  string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
 
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+                  SqlCommand command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
 
-            SqlDataReader reader = null;
+                  SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
 
-                reader = command.ExecuteReader();
+                      reader = command.ExecuteReader();
 
-                while (reader.Read())
-                {
-                    string name = Constants.VolumePrefix + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + " l";
-                    tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
-                }
+                      while (reader.Read())
+                      {
+                          string name = Constants.VolumePrefix + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + " l";
+                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
+                      }
 
-            }
-            catch (Exception ex)
-            {
-                errmsg = ex.Message;
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = ex.Message;
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection.State == ConnectionState.Open)
+                          connection.Close();
+                      command.Dispose();
+                  }
 
-            return true;
-        }
-  */
+                  return true;
+              }
+        */
         public bool GetAttributeTermsForVolume(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
             errmsg = "";
@@ -945,13 +945,13 @@ namespace WooCommerceClient.Services
                 {
                     decimal ll = reader.GetDecimal(0);
                     string name = Utils.DecimalToStringFloating(ll) + " l";
-                    attributeTerms.Add(new ProductAttributeTerm() 
-                    { 
+                    attributeTerms.Add(new ProductAttributeTerm()
+                    {
                         name = name,
                         slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                         visma_id = Decimal.ToInt32(ll * 1000.0M),
                         lang = lang,
-                        translations = new Translations()
+                        //translations = new Translations()
                     });
                 }
 
@@ -978,7 +978,7 @@ namespace WooCommerceClient.Services
         {
             errmsg = "";
 
-            string sql = "SELECT DISTINCT Free1 FROM Prod WHERE Free1>0";
+            string sql = "SELECT DISTINCT Free1 FROM Prod WHERE Free1>=0";
 
             SqlCommand command = new SqlCommand(sql, connection)
             {
@@ -998,16 +998,16 @@ namespace WooCommerceClient.Services
                 while (reader.Read())
                 {
                     string name = Constants.AlcoholPrefix + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + "%";
-                    ProductTag tag_da = new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = "da"};
+                    ProductTag tag_da = new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = "da" };
 
                     name = Constants.AlcoholPrefixEn + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + "%";
-                    ProductTag tag_en = new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name) + "-en", lang = "en"};
+                    ProductTag tag_en = new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name) + "-en", lang = "en" };
 
-                    tag_da.translations = new Translations() { nameforda = tag_da.name, nameforen = tag_en.name };
-                    tag_en.translations = new Translations() { nameforda = tag_da.name, nameforen = tag_en.name };
+                   // tag_da.translations = new Translations() { nameforda = tag_da.name, nameforen = tag_en.name };
+                 //   tag_en.translations = new Translations() { nameforda = tag_da.name, nameforen = tag_en.name };
 
                     tags.Add(tag_da);
-                    if (Utils.ReadConfigInt32("DoTranslation",0)>0)
+                    if (Utils.ReadConfigInt32("DoTranslation", 0) > 0)
                         tags.Add(tag_en);
                 }
 
@@ -1030,87 +1030,87 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-     /*   public bool GetCategories(ref List<ProductCategory> categories, out string errmsg)
-        {
-            categories.Clear();
-            errmsg = "";
+        /*   public bool GetCategories(ref List<ProductCategory> categories, out string errmsg)
+           {
+               categories.Clear();
+               errmsg = "";
 
-            string sql = queryGetCategories;
-    
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+               string sql = queryGetCategories;
 
-            SqlDataReader reader = null;
+               SqlCommand command = new SqlCommand(sql, connection)
+               {
+                   CommandType = CommandType.Text,
+                   CommandTimeout = 600
+               };
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+               SqlDataReader reader = null;
 
-                reader = command.ExecuteReader();
+               try
+               {
+                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                       connection.Open();
 
-                while (reader.Read())
-                {
-                    int catNo = reader.GetInt32(0);
-                    string name = reader.GetString(1).Trim();
-                    int parent_catNo = reader.GetInt32(2);
+                   reader = command.ExecuteReader();
 
-         
-
-                    int level = reader.GetInt32(3);
-                    ProductCategory c = categories.FirstOrDefault(p => p.vismaCatNo == catNo);
-                    if (c == null)
-                    {
-                 
-                        if (categories.Exists(p => p.name == name && p.vismaLevel != parent_catNo))
-                            name += ".";
-
-                        categories.Add(new ProductCategory()
-                        {
-                            name = name,
-                            slug = Utils.SanitizeSlugName(name),
-                            description = name,
-
-                            vismaCatNo = catNo,
-                            vismaParentCatNo = parent_catNo,
-                            vismaLevel = level
-                        });
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                errmsg = ex.Message;
-
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
+                   while (reader.Read())
+                   {
+                       int catNo = reader.GetInt32(0);
+                       string name = reader.GetString(1).Trim();
+                       int parent_catNo = reader.GetInt32(2);
 
 
-            foreach(ProductCategory c in categories)
-            {
-                if (c.vismaParentCatNo > 0)
-                {
-                    // Find parent
-                    ProductCategory c_parent = categories.FirstOrDefault(p => p.vismaCatNo == c.vismaParentCatNo);
-                    if (c_parent != null)
-                        c.parent = c_parent.id;
-                }
-            }
-            return true;
-        }
-     */
+
+                       int level = reader.GetInt32(3);
+                       ProductCategory c = categories.FirstOrDefault(p => p.vismaCatNo == catNo);
+                       if (c == null)
+                       {
+
+                           if (categories.Exists(p => p.name == name && p.vismaLevel != parent_catNo))
+                               name += ".";
+
+                           categories.Add(new ProductCategory()
+                           {
+                               name = name,
+                               slug = Utils.SanitizeSlugName(name),
+                               description = name,
+
+                               vismaCatNo = catNo,
+                               vismaParentCatNo = parent_catNo,
+                               vismaLevel = level
+                           });
+                       }
+                   }
+
+               }
+               catch (Exception ex)
+               {
+                   errmsg = ex.Message;
+
+                   return false;
+               }
+               finally
+               {
+                   if (reader != null)
+                       reader.Close();
+                   if (connection.State == ConnectionState.Open)
+                       connection.Close();
+                   command.Dispose();
+               }
+
+
+               foreach(ProductCategory c in categories)
+               {
+                   if (c.vismaParentCatNo > 0)
+                   {
+                       // Find parent
+                       ProductCategory c_parent = categories.FirstOrDefault(p => p.vismaCatNo == c.vismaParentCatNo);
+                       if (c_parent != null)
+                           c.parent = c_parent.id;
+                   }
+               }
+               return true;
+           }
+        */
 
         public bool GetProductsToProcess(ref List<string> products, DateTime latestSyncTime, out string errmsg)
         {
@@ -1177,10 +1177,10 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-        public bool GetProducts(SyncType mode, ref List<Product> products, DateTime latestSyncTime,         
-                                                    List<ProductAttribute> wooCommerceAttributes, 
+        public bool GetProducts(SyncType mode, ref List<Product> products, DateTime latestSyncTime,
+                                                    List<ProductAttribute> wooCommerceAttributes,
                                                     List<ProductTag> wooCommerceTags,
-                                                    List<ProductCategory> wooCommerceCategories,            
+                                                    List<ProductCategory> wooCommerceCategories,
                                                     int langNo,
                                                     out string errmsg)
         {
@@ -1194,6 +1194,9 @@ namespace WooCommerceClient.Services
             string valField = Utils.ReadConfigString("FreeInf1Selection", "Val1");
 
             //int descriptionMaxLength = Utils.ReadConfigInt32("DescriptionMaxLength", 4096);
+
+            if (string.IsNullOrWhiteSpace(TestProductNo) == false)
+                latestSyncTime = DateTime.MinValue;
 
             int vismaDt = latestSyncTime.Year * 10000 + latestSyncTime.Month * 100 + latestSyncTime.Day;
             int vismaTm = latestSyncTime.Hour * 100 + latestSyncTime.Minute;
@@ -1222,7 +1225,7 @@ namespace WooCommerceClient.Services
                 if (mode == SyncType.Stock)
                 {
                     sql = sql.Replace("###", "INNER JOIN StcBal WITH (NOLOCK) ON StcBal.ProdNo=Prod.ProdNo ");
-                    sql += "AND ((Stcbal.ChDt=0) OR (Stcbal.ChDt > #1#) OR (Stcbal.ChDt = #1# AND Stcbal.ChTm >= #2#)) ";                    
+                    sql += "AND ((Stcbal.ChDt=0) OR (Stcbal.ChDt > #1#) OR (Stcbal.ChDt = #1# AND Stcbal.ChTm >= #2#)) ";
                 }
             }
             sql = sql.Replace("###", "");
@@ -1260,9 +1263,9 @@ namespace WooCommerceClient.Services
                     };
                     string originalTitle = reader.GetString(idx++).Trim();  //Prod.WebPg2 or FI_EN.WebPg
                     item.name = Utils.SanitizeName(originalTitle);
-                
+
                     item.meta_data = new List<ProductMeta>();
-                    ProductMeta meta = new ProductMeta() { key = "_original_title", value = originalTitle };                   
+                    ProductMeta meta = new ProductMeta() { key = "_original_title", value = originalTitle };
                     item.meta_data.Add(meta);
 
                     item.lang = Utils.LangNoToString(langNo);
@@ -1270,6 +1273,8 @@ namespace WooCommerceClient.Services
                     dbg = item.sku;
                     if (item.vismaUnitsPerProdNo == 0)
                         item.vismaUnitsPerProdNo = 1;
+
+                    int productType = reader.GetInt32(idx++);  // Gr10 
 
                     int year = reader.GetInt32(idx++);  // ProdTp4 
                     string yearString = year > 0 ? (year == 1 ? "N.V." : year.ToString()) : "";
@@ -1300,7 +1305,7 @@ namespace WooCommerceClient.Services
                         d *= 1000;
                     string volString = Utils.DecimalToStringFloating(d) + " ml";
                     // 20210810 - add volume to title/name
-                    if (d > 0)
+                    if (d > 0 && productType != 20) // Do not add vol if 'Smagekasse'
                         item.name += " " + volString;
 
                     int n = reader.GetInt32(idx++);                         // Prod.Gr3  
@@ -1312,10 +1317,10 @@ namespace WooCommerceClient.Services
                     d = reader.GetDecimal(idx++);                           // Prod.Free1
                     string alcString = Utils.DecimalToStringFloating(d) + "%";
 
-                 /*   int cat0 = reader.GetInt32(idx++);   // land (NY)                       // "ISNULL(R6.Gr3,0), ISNULL(R6.Gr,0), 0, FreeInf1.Val1, FreeInf1.Val11  "
-                    int cat1 = reader.GetInt32(idx++);   // område (NY)             
-                    int cat2 = reader.GetInt32(idx++);   // mark (ikke brugt)
-                */
+                    /*   int cat0 = reader.GetInt32(idx++);   // land (NY)                       // "ISNULL(R6.Gr3,0), ISNULL(R6.Gr,0), 0, FreeInf1.Val1, FreeInf1.Val11  "
+                       int cat1 = reader.GetInt32(idx++);   // område (NY)             
+                       int cat2 = reader.GetInt32(idx++);   // mark (ikke brugt)
+                   */
 
                     int val1 = Decimal.ToInt32(reader.GetDecimal(idx++)); // FreeInf1.Val1
                     item.status = val1 == 1 ? "publish" : "draft";
@@ -1335,6 +1340,8 @@ namespace WooCommerceClient.Services
 
                     bool hasBOM = reader.GetInt32(idx++) > 0;
 
+
+
                     bool noDiscount = reader.GetInt32(idx++) > 0;
 
                     string group_danish = reader.GetString(idx++).Trim();           // Prod.Gr -> Txt (lang=45)
@@ -1346,12 +1353,12 @@ namespace WooCommerceClient.Services
                         prodSubType = prodSubType_danish;
 
                     item.images = new List<ProductImage>();
-                    if (picture != "" && Utils.ReadConfigInt32("SendImages",0) > 0)
+                    if (picture != "" && Utils.ReadConfigInt32("SendImages", 0) > 0)
                         item.images.Add(new ProductImage() { src = picture, name = Path.GetFileNameWithoutExtension(picture), alt = item.name });
-                  
-                    if (memoFile != "")                   
+
+                    if (memoFile != "")
                         item.description = Utils.ReadMemoFile(memoFile);
-                 
+
                     item.categories = new List<ProductCategoryLine>();
                     /* 20200901 - categories not used..   
                    if (land != "")
@@ -1362,22 +1369,24 @@ namespace WooCommerceClient.Services
 
                     if (noDiscount)
                     {
-                        ProductCategory noDiscountCategory = wooCommerceCategories.FirstOrDefault(p => p.name == (langNo == 45? Constants.NoDiscount : Constants.NoDiscountEn) && p.lang == Utils.LangNoToString(langNo));
+                        ProductCategory noDiscountCategory = wooCommerceCategories.FirstOrDefault(p => p.name == (langNo == 45 ? Constants.NoDiscount : Constants.NoDiscountEn) && p.lang == Utils.LangNoToString(langNo));
                         if (noDiscountCategory != null)
-                            item.categories.Add(new ProductCategoryLine() { id = noDiscountCategory.id, name = Constants.NoDiscount/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.NoDiscount)  : Utils.SanitizeSlugNameNew(Constants.NoDiscount) + "-" + lang*/});
-                        else // add anyway...
+                            //item.categories.Add(new ProductCategoryLine() { id = noDiscountCategory.id, name = Constants.NoDiscount, slug = noDiscountCategory.slug /*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.NoDiscount)  : Utils.SanitizeSlugNameNew(Constants.NoDiscount) + "-" + lang*/});
+                            item.categories.Add(new ProductCategoryLine() { id = noDiscountCategory.id, name = noDiscountCategory.name, slug = noDiscountCategory.slug /*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.NoDiscount)  : Utils.SanitizeSlugNameNew(Constants.NoDiscount) + "-" + lang*/});
+                        else // add anyway...(without slug?)
                             item.categories.Add(new ProductCategoryLine() { name = (langNo == 45 ? Constants.NoDiscount : Constants.NoDiscountEn)/*, slug = (langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.NoDiscount)  : Utils.SanitizeSlugNameNew(Constants.NoDiscount)) + "-" + lang*/ });
                     }
 
                     // Added 20210204 - moved from attribute
                     if (okologisk)
                     {
-                        ProductCategory OekologiskCategory = langNo == 45 
+                        ProductCategory OekologiskCategory = langNo == 45
                             ? wooCommerceCategories.FirstOrDefault(p => p.name == Constants.CategoryOekologisk && p.lang == Utils.LangNoToString(langNo))
-                            : wooCommerceCategories.FirstOrDefault(p => (p.name == Constants.CategoryOekologiskEn || p.name == Constants.Old_CategoryOekologiskEn) 
+                            : wooCommerceCategories.FirstOrDefault(p => (p.name == Constants.CategoryOekologiskEn || p.name == Constants.Old_CategoryOekologiskEn)
                             && p.lang == Utils.LangNoToString(langNo));
                         if (OekologiskCategory != null)
-                            item.categories.Add(new ProductCategoryLine() { id = OekologiskCategory.id, name = (langNo == 45 ? Constants.CategoryOekologisk : Constants.CategoryOekologiskEn)/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug)  : Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug) + "-" + lang*/ });
+                            // item.categories.Add(new ProductCategoryLine() { id = OekologiskCategory.id, name = (langNo == 45 ? Constants.CategoryOekologisk : Constants.CategoryOekologiskEn), slug = OekologiskCategory.slug /*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug)  : Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug) + "-" + lang*/ });
+                            item.categories.Add(new ProductCategoryLine() { id = OekologiskCategory.id, name = OekologiskCategory.name, slug = OekologiskCategory.slug /*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug)  : Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug) + "-" + lang*/ });
                         else // add anyway...
                             item.categories.Add(new ProductCategoryLine() { name = (langNo == 45 ? Constants.CategoryOekologisk : Constants.CategoryOekologiskEn)/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug)  : Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug) + "-" + lang*/ });
                     }
@@ -1386,20 +1395,21 @@ namespace WooCommerceClient.Services
                     {
                         ProductCategory bomCategory = wooCommerceCategories.FirstOrDefault(p => (langNo == 45 ? p.name == Constants.ProductWithBom : p.name == Constants.ProductWithBomEn) && p.lang == Utils.LangNoToString(langNo));
                         if (bomCategory != null)
-                            item.categories.Add(new ProductCategoryLine() { id = bomCategory.id, name = (langNo == 45 ?  Constants.ProductWithBom :  Constants.ProductWithBomEn)/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.ProductWithBom)  : Utils.SanitizeSlugNameNew(Constants.ProductWithBom) + "-" + lang*/ });
+                            //item.categories.Add(new ProductCategoryLine() { id = bomCategory.id, name = (langNo == 45 ?  Constants.ProductWithBom :  Constants.ProductWithBomEn)/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.ProductWithBom)  : Utils.SanitizeSlugNameNew(Constants.ProductWithBom) + "-" + lang*/ });
+                            item.categories.Add(new ProductCategoryLine() { id = bomCategory.id, name = bomCategory.name, slug = bomCategory.slug/*, slug = langNo == 45 ? Utils.SanitizeSlugNameNew(Constants.ProductWithBom)  : Utils.SanitizeSlugNameNew(Constants.ProductWithBom) + "-" + lang*/ });
                     }
 
                     products.Add(item);
 
                     productDetails.Add(new VismaProductDetail()
                     {
-                        ProdNo = item.sku, 
+                        ProdNo = item.sku,
                         Volume = volString,
-                        Alcohol = alcString, 
+                        Alcohol = alcString,
                         Country = land,
                         Region = omraade,
                         Producer = producent,
-                        ProductType = prodSubType, 
+                        ProductType = prodSubType,
                         Eco = okologisk ? "Ja" : "", // or "Nej" ?? 
                         Year = yearString,
                         County = kommune,
@@ -1430,7 +1440,7 @@ namespace WooCommerceClient.Services
             int counter = 0;
             foreach (Product product in products)
             {
-                 //Utils.WriteLog(product.vismaProdNo);
+                //Utils.WriteLog(product.vismaProdNo);
                 //if (mode == SyncType.Products || mode == SyncType.Campaigns || mode == SyncType.Stock)
                 //{
 
@@ -1442,8 +1452,8 @@ namespace WooCommerceClient.Services
                     Utils.WriteLog($"ERROR: GetPrice() - {errmsg}");
                     return false;
                 }
-                    
-                    
+
+
                 product.regular_price = price;// * product.vismaUnitsPerProdNo;
 
                 // EURO price
@@ -1458,10 +1468,14 @@ namespace WooCommerceClient.Services
                 {
                     if (product.meta_data == null)
                         product.meta_data = new List<ProductMeta>();
-                    product.meta_data.Add(new ProductMeta() { 
-                        key = "_regular_currency_prices", 
-                        value = new ProductMetaEur() { 
-                            EUR = Utils.DecimalToString(price) } });
+                    product.meta_data.Add(new ProductMeta()
+                    {
+                        key = "_regular_currency_prices",
+                        value = new ProductMetaEur()
+                        {
+                            EUR = Utils.DecimalToString(price)
+                        }
+                    });
                 }
 
                 string longDescr = "";
@@ -1477,19 +1491,19 @@ namespace WooCommerceClient.Services
                 //}
 
                 //if (mode == SyncType.Stock || mode == SyncType.Products)
-               // {
+                // {
                 int stockCount = 0;
-                if (GetStock(product.sku, 0,ref stockCount, out errmsg) == false)
+                if (GetStock(product.sku, 0, ref stockCount, out errmsg) == false)
                     return false;
                 int extraStockCount = 0;
                 if (GetWebReservedStock(product.sku, ref extraStockCount, out errmsg))
                     stockCount += extraStockCount;
 
-                if (product.stock_quantity == 0 || stockCount < product.stock_quantity.Value )
+                if (product.stock_quantity == 0 || stockCount < product.stock_quantity.Value)
                     product.stock_quantity = stockCount;
 
-              
-                    
+
+
                 //}
 
                 try
@@ -1502,7 +1516,7 @@ namespace WooCommerceClient.Services
                         List<VismaBomItem> bomItems = new List<VismaBomItem>();
                         if (GetProducerBOM(product.sku, ref bomItems, out errmsg) == false)
                             return false;
-//                        string prodList = "";
+                        //                        string prodList = "";
                         int minStock = 9999;
 
                         List<ProductBomItem> bomList = new List<ProductBomItem>();
@@ -1510,9 +1524,9 @@ namespace WooCommerceClient.Services
                         {
                             detail.VismaBomItems.Add(bomItem); // not yet used..
 
-//                              if (prodList != "")
-//                                prodList += ",";
-    //                          prodList += bomItem.ProdNo;
+                            //                              if (prodList != "")
+                            //                                prodList += ",";
+                            //                          prodList += bomItem.ProdNo;
 
                             int stock = 0;
                             GetStock(bomItem.ProdNo, 0, ref stock, out errmsg);
@@ -1528,7 +1542,7 @@ namespace WooCommerceClient.Services
                         product.meta_data.Add(new ProductMeta() { key = "_in_box", value = bomList });
 
                         product.stock_quantity = minStock;
-                            
+
                     }
 
                     List<string> categoryTags = new List<string>();
@@ -1568,9 +1582,9 @@ namespace WooCommerceClient.Services
                             ProductAttribute countryAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameCountry);
                             ProductAttributeLine a = new ProductAttributeLine() { id = countryAttribute.id, name = countryAttribute.name, visible = true, options = new List<string> { detail.Country } };
 
-                       
+
                             product.attributes.Add(a);
-                              //  Utils.WriteLog($"Country {detail.Country} set for products {product.sku}.");
+                            //  Utils.WriteLog($"Country {detail.Country} set for products {product.sku}.");
                         }
 
                         if (detail.Region != "" && detail.HasBOM == false)
@@ -1581,20 +1595,20 @@ namespace WooCommerceClient.Services
                             //    Utils.WriteLog($"Region set for products {product.sku}.");
                         }
 
-                 /*       if (detail.County != "" && detail.HasBOM == false)
-                        {
-                            ProductAttribute countyAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameCounty);
-                            ProductAttributeLine a = new ProductAttributeLine() { id = countyAttribute.id, name = countyAttribute.name, visible = true, options = new List<string> { detail.County } };
-                            product.attributes.Add(a);
-                            //   Utils.WriteLog($"County set for products {product.sku}.");
-                        }*/
+                        /*       if (detail.County != "" && detail.HasBOM == false)
+                               {
+                                   ProductAttribute countyAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameCounty);
+                                   ProductAttributeLine a = new ProductAttributeLine() { id = countyAttribute.id, name = countyAttribute.name, visible = true, options = new List<string> { detail.County } };
+                                   product.attributes.Add(a);
+                                   //   Utils.WriteLog($"County set for products {product.sku}.");
+                               }*/
 
                         if (detail.Producer != "" && detail.HasBOM == false)
                         {
                             ProductAttribute producerAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameProducer);
-                            ProductAttributeLine a = new ProductAttributeLine() { id = producerAttribute.id, name = producerAttribute.name, visible = true, options = new List<string> { detail.Producer.Replace("&amp;","&") } };          // WHAAAAT???
+                            ProductAttributeLine a = new ProductAttributeLine() { id = producerAttribute.id, name = producerAttribute.name, visible = true, options = new List<string> { detail.Producer.Replace("&amp;", "&") } };          // WHAAAAT???
                             product.attributes.Add(a);
-                          
+
                         }
 
                         if (detail.ProductType != "" && detail.HasBOM == false)
@@ -1604,15 +1618,15 @@ namespace WooCommerceClient.Services
                             product.attributes.Add(a);
                             //   Utils.WriteLog($"ProductType set for products {product.sku}.");
                         }
-                        
+
                         // Disabled 20210204 - moved to category
-                       /* if (detail.Eco != "" && detail.HasBOM == false)
-                        {
-                            ProductAttribute ecoAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameEcologic);
-                            ProductAttributeLine a = new ProductAttributeLine() { id = ecoAttribute.id, name = ecoAttribute.name, visible = true, options = new List<string> { detail.Eco } };
-                            product.attributes.Add(a);
-                            //   Utils.WriteLog($"Eco set for products {product.sku}.");
-                        }*/
+                        /* if (detail.Eco != "" && detail.HasBOM == false)
+                         {
+                             ProductAttribute ecoAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameEcologic);
+                             ProductAttributeLine a = new ProductAttributeLine() { id = ecoAttribute.id, name = ecoAttribute.name, visible = true, options = new List<string> { detail.Eco } };
+                             product.attributes.Add(a);
+                             //   Utils.WriteLog($"Eco set for products {product.sku}.");
+                         }*/
 
                         if (detail.Year != "" && detail.HasBOM == false)
                         {
@@ -1632,7 +1646,7 @@ namespace WooCommerceClient.Services
                     }
                     if (wooCommerceTags != null)
                     {
-              
+
                         /*
                         if (detail.Year != "")
                         {
@@ -1674,8 +1688,8 @@ namespace WooCommerceClient.Services
                         {
                             string prefix = langNo != 45 ? Constants.AlcoholPrefixEn : Constants.AlcoholPrefix;
                             string old_prefix = langNo != 45 ? Constants.Old_AlcoholPrefixEn : Constants.Old_AlcoholPrefix;
-                            ProductTag alcoholTag = wooCommerceTags.FirstOrDefault(p => 
-                                ((p.name == prefix + detail.Alcohol) || (p.name == old_prefix + detail.Alcohol)) 
+                            ProductTag alcoholTag = wooCommerceTags.FirstOrDefault(p =>
+                                ((p.name == prefix + detail.Alcohol) || (p.name == old_prefix + detail.Alcohol))
                                 && p.lang == lang);
                             ProductTagLine t;
                             if (alcoholTag != null)
@@ -1693,20 +1707,20 @@ namespace WooCommerceClient.Services
                             //  Utils.WriteLog($"Alcohol set for products {product.sku}.");
                         }
 
-                       /* if (detail.NoDiscount)
-                        {
-                            ProductTag nodiscountTag = wooCommerceTags.FirstOrDefault(p => p.name == Constants.NoDiscount);
-                            ProductTagLine t;
-                            if (nodiscountTag != null)
-                            {
-                                t = new ProductTagLine() { id = nodiscountTag.id, name = nodiscountTag.name, slug = nodiscountTag.slug };
-                            }
-                            else // do create anyway...
-                            {
-                                t = new ProductTagLine() { name = Constants.NoDiscount, slug = Utils.SanitizeSlugName(Constants.NoDiscount) };
-                            }
-                            product.tags.Add(t);
-                        }*/
+                        /* if (detail.NoDiscount)
+                         {
+                             ProductTag nodiscountTag = wooCommerceTags.FirstOrDefault(p => p.name == Constants.NoDiscount);
+                             ProductTagLine t;
+                             if (nodiscountTag != null)
+                             {
+                                 t = new ProductTagLine() { id = nodiscountTag.id, name = nodiscountTag.name, slug = nodiscountTag.slug };
+                             }
+                             else // do create anyway...
+                             {
+                                 t = new ProductTagLine() { name = Constants.NoDiscount, slug = Utils.SanitizeSlugName(Constants.NoDiscount) };
+                             }
+                             product.tags.Add(t);
+                         }*/
 
                         //  }
 
@@ -1718,13 +1732,13 @@ namespace WooCommerceClient.Services
                         }
 
                         product.vismaRelatedProduct = relatedProducts;
-               
+
                         //product.description = "";
                         //string longDescr = "";
                         //if (GetLongDescription(product.vismaProdNo, ref longDescr, out errmsg) == true)
                         //    product.description = Utils.SanitizeDescription(longDescr, true);
                         //product.description += "\n";
-                       
+
                         foreach (ProductImage img in product.images)
                         {
                             //Utils.WriteLog($"Image {img.src}..");
@@ -1736,7 +1750,7 @@ namespace WooCommerceClient.Services
                             if (Utils.ReadConfigString("ForceImagePath", "") != "")
                             {
                                 if (File.Exists(Utils.ReadConfigString("ForceImagePath", "") + Path.GetFileName(img.src)))
-                                    img.src = Utils.ReadConfigString("ForceImagePath", "") +  Path.GetFileName(img.src);
+                                    img.src = Utils.ReadConfigString("ForceImagePath", "") + Path.GetFileName(img.src);
                             }
 
                             if (File.Exists(img.src) == false)
@@ -1760,10 +1774,10 @@ namespace WooCommerceClient.Services
                                             Utils.WriteLog("Copy to : " + Utils.ReadConfigString("CopyImageFolder", "") + @"\" + Path.GetFileName(img.src));
                                             File.Copy(img.src, newPath, true);
 
-                                         /*   if (Utils.ReadConfigInt32("LimitImageSize", 0) > 0)
-                                            {
-                                                Utils.ResampleToSize(newPath, Utils.ReadConfigInt32("LimitImageSize", 0));
-                                            }*/
+                                            /*   if (Utils.ReadConfigInt32("LimitImageSize", 0) > 0)
+                                               {
+                                                   Utils.ResampleToSize(newPath, Utils.ReadConfigInt32("LimitImageSize", 0));
+                                               }*/
                                             Utils.WriteLog("Image: " + img.src);
                                         }
                                     }
@@ -1843,79 +1857,79 @@ namespace WooCommerceClient.Services
         //}
 
 
- /*       public bool GetProductDetails(string prodNo, ref VismaProductDetails item, out string errmsg)
-        {
-            errmsg = "";
+        /*       public bool GetProductDetails(string prodNo, ref VismaProductDetails item, out string errmsg)
+               {
+                   errmsg = "";
 
-            string sql = queryGetProductDetails.Replace("#1#", prodNo.Replace("'", "''"));
+                   string sql = queryGetProductDetails.Replace("#1#", prodNo.Replace("'", "''"));
 
-            SqlCommand command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text
-            };
+                   SqlCommand command = new SqlCommand(sql, connection)
+                   {
+                       CommandType = CommandType.Text
+                   };
 
-            SqlDataReader reader = null;
+                   SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+                   try
+                   {
+                       if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                           connection.Open();
 
-                reader = command.ExecuteReader();
+                       reader = command.ExecuteReader();
 
-                if (reader.Read())
-                {
-                    int idx = 0;
-                    item.Type = reader.GetString(idx++).Trim();
-                    item.Year = reader.GetInt32(idx++).ToString();// ProdTp4
-                    if (item.Year == "0")
-                        item.Year = "";
-                    if (item.Year == "1")
-                        item.Year = "NV";
-                    int organic = reader.GetInt32(idx++);           // Gr3
-                    int bio = reader.GetInt32(idx++);               // Gr5
-                    int nature = reader.GetInt32(idx++);            // Gr11
-                    item.Organic = organic == 1 ? "Ja" : "Nej";
-                    item.Biodynamic = bio == 1 ? "Ja" : "Nej";
-                    item.Naturewine = nature == 1 ? "Ja" : "Nej";
+                       if (reader.Read())
+                       {
+                           int idx = 0;
+                           item.Type = reader.GetString(idx++).Trim();
+                           item.Year = reader.GetInt32(idx++).ToString();// ProdTp4
+                           if (item.Year == "0")
+                               item.Year = "";
+                           if (item.Year == "1")
+                               item.Year = "NV";
+                           int organic = reader.GetInt32(idx++);           // Gr3
+                           int bio = reader.GetInt32(idx++);               // Gr5
+                           int nature = reader.GetInt32(idx++);            // Gr11
+                           item.Organic = organic == 1 ? "Ja" : "Nej";
+                           item.Biodynamic = bio == 1 ? "Ja" : "Nej";
+                           item.Naturewine = nature == 1 ? "Ja" : "Nej";
 
-                    item.Weight = reader.GetDecimal(idx++);                     // TareU
-                    item.Content = reader.GetDecimal(idx++) * 100.0M;                        // WdtU
-                    item.Alcohol = reader.GetDecimal(idx++);  //Prod.Free1,
-                    if (item.Alcohol > 990.0M)
-                        item.Alcohol = 0.0M;
-                    item.UnitsPerPackage = reader.GetInt32(idx++);              // ProdTp2
-                    item.Country = reader.GetString(idx++).Trim();  // Cat1 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
+                           item.Weight = reader.GetDecimal(idx++);                     // TareU
+                           item.Content = reader.GetDecimal(idx++) * 100.0M;                        // WdtU
+                           item.Alcohol = reader.GetDecimal(idx++);  //Prod.Free1,
+                           if (item.Alcohol > 990.0M)
+                               item.Alcohol = 0.0M;
+                           item.UnitsPerPackage = reader.GetInt32(idx++);              // ProdTp2
+                           item.Country = reader.GetString(idx++).Trim();  // Cat1 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
 
-                    item.District = reader.GetString(idx++).Trim();  // Cat2 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
-                    item.County = reader.GetString(idx++).Trim();  // Cat3 tekst
-                    item.Producer = reader.GetString(idx++).Trim();  // Cat4 tekst
-                    item.Classification = reader.GetString(idx++).Trim();  // Cat5 tekst
-                    item.Mark = reader.GetString(idx++).Trim();  // Cat6 tekst
+                           item.District = reader.GetString(idx++).Trim();  // Cat2 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
+                           item.County = reader.GetString(idx++).Trim();  // Cat3 tekst
+                           item.Producer = reader.GetString(idx++).Trim();  // Cat4 tekst
+                           item.Classification = reader.GetString(idx++).Trim();  // Cat5 tekst
+                           item.Mark = reader.GetString(idx++).Trim();  // Cat6 tekst
 
-                    item.SubType = reader.GetString(idx++).Trim(); // SubType
-                }
-            }
-            catch (Exception ex)
-            {
-                errmsg = "GetProductDetails() - " + ex.Message + " " + sql;
+                           item.SubType = reader.GetString(idx++).Trim(); // SubType
+                       }
+                   }
+                   catch (Exception ex)
+                   {
+                       errmsg = "GetProductDetails() - " + ex.Message + " " + sql;
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                command.Dispose();
-            }
-            string scores = "";
-            if (GetProductScores(prodNo, ref scores, out errmsg))
-                item.Scores = scores;
-            return true;
-        }
-        */
+                       return false;
+                   }
+                   finally
+                   {
+                       if (reader != null)
+                           reader.Close();
+                       if (connection.State == ConnectionState.Open)
+                           connection.Close();
+                       command.Dispose();
+                   }
+                   string scores = "";
+                   if (GetProductScores(prodNo, ref scores, out errmsg))
+                       item.Scores = scores;
+                   return true;
+               }
+               */
 
 
         public bool GetProducerBOM(string prodNo, ref List<VismaBomItem> vismaBomItems, out string errmsg)
@@ -1947,14 +1961,22 @@ namespace WooCommerceClient.Services
                         qty = 1;
                     string descr = reader.GetString(2).Trim();
                     string descr1 = reader.GetString(3).Trim();
+                    decimal vol = reader.GetDecimal(4);
+                    int productType = reader.GetInt32(5);
                     if (descr1 != "")
                         descr = descr1;
+                    if (vol < 1.0M)
+                        vol *= 1000;
+                    string volString = Utils.DecimalToStringFloating(vol) + " ml";
+                    // 20210810 - add volume to title/name
+                    if (vol > 0 && productType != 20) // Do not add vol if 'Smagekasse'
+                        descr += " " + volString;
                     vismaBomItems.Add(new VismaBomItem() { ProdNo = p, Qty = qty, Descr = descr });
                 }
             }
             catch (Exception ex)
             {
-                errmsg = "GetProductScores() - " + ex.Message + " " + sql;
+                errmsg = "GetProducerBOM() - " + ex.Message + " " + sql;
 
                 return false;
             }
@@ -2032,7 +2054,7 @@ namespace WooCommerceClient.Services
             string sql = $"UPDATE FreeInf1 SET Val1=10 WHERE InfCatNo=45 AND ProdNo='{prodNo}' ";
 
             if (forced == false)
-                sql += " AND Val1=9"; 
+                sql += " AND Val1=9";
             SqlCommand command = new SqlCommand(sql, connection)
             {
                 CommandType = CommandType.Text
@@ -2139,7 +2161,7 @@ namespace WooCommerceClient.Services
 
             sql = sql.Replace("#1#", stockList).Replace("#9#", valField);
 
-             Utils.WriteLog("DEBUG: " + sql);
+            Utils.WriteLog("DEBUG: " + sql);
             SqlCommand command = new SqlCommand(sql, connection)
             {
                 CommandType = CommandType.Text
@@ -2209,7 +2231,7 @@ namespace WooCommerceClient.Services
                 if (reader.Read())
                 {
                     price = reader.GetDecimal(0);
-//                    price *= 1.25M;
+                    //                    price *= 1.25M;
                 }
             }
             catch (Exception ex)
@@ -2237,7 +2259,7 @@ namespace WooCommerceClient.Services
             errmsg = "";
             price = 0.0M;
             int vismaNow = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
-            string sql = queryGetPriceB2B.Replace("#1#", prodNo.Replace("'", "''")).Replace("#2#", vismaNow.ToString()).Replace("#3#", prTp.ToString()); 
+            string sql = queryGetPriceB2B.Replace("#1#", prodNo.Replace("'", "''")).Replace("#2#", vismaNow.ToString()).Replace("#3#", prTp.ToString());
 
             SqlCommand command = new SqlCommand(sql, connection)
             {
@@ -2256,7 +2278,7 @@ namespace WooCommerceClient.Services
                 if (reader.Read())
                 {
                     price = reader.GetDecimal(0);
-//                        price *= 1.25M;
+                    //                        price *= 1.25M;
                 }
             }
             catch (Exception ex)
@@ -2282,7 +2304,7 @@ namespace WooCommerceClient.Services
             errmsg = "";
             stock = 0; ;
 
-            string sql = queryGetStock.Replace("#1#", prodNo.Replace("'", "''")); 
+            string sql = queryGetStock.Replace("#1#", prodNo.Replace("'", "''"));
 
             string stockList = Utils.ReadConfigString("StockList", "1,2");
             if (specificStcNo > 0)
@@ -2496,58 +2518,58 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-      
 
-  /*      public bool GetSecondaryCategories(string prodNo, ref List<string> descr, out string errmsg)
-        {
-            errmsg = "";
-            descr.Clear();
 
-            string sql =
-                    "SELECT DISTINCT ProdCat.Descr " +
-                       "FROM FreeInf1 WITH (NOLOCK) " +
-                       "INNER JOIN ProdCat WITH (NOLOCK) ON ProdCat.PrCatNo = FreeInf1.PrCatNo " +
-                       $"WHERE FreeInf1.InfCatNo = 90 AND FreeInf1.PrCatNo > 0 AND FreeInf1.ProdNo={prodNo} AND ProdCat.Descr<>'' ";
+        /*      public bool GetSecondaryCategories(string prodNo, ref List<string> descr, out string errmsg)
+              {
+                  errmsg = "";
+                  descr.Clear();
 
-            SqlCommand command;
-            SqlDataReader reader = null;
+                  string sql =
+                          "SELECT DISTINCT ProdCat.Descr " +
+                             "FROM FreeInf1 WITH (NOLOCK) " +
+                             "INNER JOIN ProdCat WITH (NOLOCK) ON ProdCat.PrCatNo = FreeInf1.PrCatNo " +
+                             $"WHERE FreeInf1.InfCatNo = 90 AND FreeInf1.PrCatNo > 0 AND FreeInf1.ProdNo={prodNo} AND ProdCat.Descr<>'' ";
 
-            command = new SqlCommand(sql, connection)
-            {
-                CommandType = CommandType.Text,
-                CommandTimeout = 600
-            };
+                  SqlCommand command;
+                  SqlDataReader reader = null;
 
-            try
-            {
-                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                    connection.Open();
+                  command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
 
-                reader = command.ExecuteReader();
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
 
-                while (reader.Read())
-                {
-                    descr.Add(reader.GetString(0).Trim());
-                }
-            }
-            catch (Exception ex)
-            {
-                errmsg = "GetLongDescription() - " + ex.Message;
+                      reader = command.ExecuteReader();
 
-                return false;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (connection != null)
-                    connection.Close();
-                command.Dispose();
-            }
+                      while (reader.Read())
+                      {
+                          descr.Add(reader.GetString(0).Trim());
+                      }
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = "GetLongDescription() - " + ex.Message;
 
-            return true;
-        }
-  */
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection != null)
+                          connection.Close();
+                      command.Dispose();
+                  }
+
+                  return true;
+              }
+        */
 
         public bool GetProductImage(string prodNo, ref string url, out string errmsg)
         {
@@ -2618,7 +2640,7 @@ namespace WooCommerceClient.Services
 
                 while (reader.Read())
                 {
-                    prodNoRelations.Add(reader.GetString(0).Trim());     
+                    prodNoRelations.Add(reader.GetString(0).Trim());
                 }
             }
             catch (Exception ex)
@@ -2672,7 +2694,7 @@ namespace WooCommerceClient.Services
                     producers.Add(new VismaProducer()
                     {
                         LangNo = langNo,
-                        Producer = reader.GetString(0), 
+                        Producer = reader.GetString(0),
                         ProducerRegion = reader.GetString(1),
                         ProducerCountry = reader.GetString(2),
                         VismaID = reader.GetInt32(3)
@@ -3306,7 +3328,7 @@ namespace WooCommerceClient.Services
         {
             errmsg = "";
             vismaOrderStatuses.Clear();
-          
+
 
 
             string sql = "SELECT Ord.OrdNo,OrdDoc.CsOrdNo,OrdDoc.OrdDocNo FROM OrdDoc " +
@@ -3441,7 +3463,7 @@ namespace WooCommerceClient.Services
         {
             errmsg = "";
 
-            
+
 
             int curNo = 0;
 

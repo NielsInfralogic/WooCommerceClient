@@ -20,7 +20,7 @@ namespace WooCommerceClient
             CultureInfo ci = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
-      
+
             DBaccess db = new DBaccess();
 
             Utils.WriteLog("Starting..");
@@ -43,7 +43,7 @@ namespace WooCommerceClient
             // Check if any products to process at all..
             List<string> productsTest = new List<string>();
             Sync sync1 = Utils.ReadSyncTime(Utils.ReadConfigString("ProductSyncFile", ""));
-            if (db.GetProductsToProcess(ref productsTest, sync1.LastestSync, out  errmsg) == false)
+            if (db.GetProductsToProcess(ref productsTest, sync1.LastestSync, out errmsg) == false)
             {
                 Utils.WriteLog($"ERROR: db.GetProductsToProcess() - {errmsg}");
                 return;
@@ -53,7 +53,14 @@ namespace WooCommerceClient
             /// DeleteAllProducts
             //////////////////////////////
             if (Utils.ReadConfigInt32("DeleteAllProducts", 0) > 0)
+            {
                 Products.DeleteAllProduct();
+                if (Utils.ReadConfigInt32("DeleteAllProducts", 0) > 1)
+                {
+                    Attributes.DeleteAllAttributes();
+                    Tags.DeleteAllTags();
+                }
+            }
 
             //////////////////////////////
             /// DeleteZeroStockProducts
@@ -64,7 +71,7 @@ namespace WooCommerceClient
             }
 
             // skip tags,attributes if no products to update
-            if (productsTest.Count >= 0)
+            if (productsTest.Count >= 0) //???
             {
                 //////////////////////////////
                 /// SyncTags
@@ -75,11 +82,11 @@ namespace WooCommerceClient
                 }
 
                 //////////////////////////////
-                /// SyncAttributes
+                /// SyncAttributes (actually only terms are sync'ed
                 //////////////////////////////
                 if (Utils.ReadConfigInt32("SyncAttributes", 0) > 0)
                 {
-                    errmsg += Attributes.SyncAttributes(db);
+                    errmsg += Attributes.SyncAttributTerms(db);
                 }
 
                 //////////////////////////////
@@ -94,7 +101,7 @@ namespace WooCommerceClient
             //////////////////////////////
             /// SyncProducts/SyncStocks
             //////////////////////////////
-            if (Utils.ReadConfigInt32("SyncProducts",0) > 0 || Utils.ReadConfigInt32("SyncStocks", 0) > 0)
+            if (Utils.ReadConfigInt32("SyncProducts", 0) > 0 || Utils.ReadConfigInt32("SyncStocks", 0) > 0)
             {
                 Utils.WriteLog("Synchronizing products..");
 
@@ -118,7 +125,7 @@ namespace WooCommerceClient
             //////////////////
             /// SyncOrders
             //////////////////
-            if (Utils.ReadConfigInt32("SyncOrders",0) > 0)
+            if (Utils.ReadConfigInt32("SyncOrders", 0) > 0)
             {
                 Orders.Syns();
             }

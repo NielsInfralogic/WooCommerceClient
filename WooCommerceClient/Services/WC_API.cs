@@ -22,17 +22,23 @@ namespace WooCommerceClient.Services
                 rest.Debug = debug.Value;
         }
 
-        public async Task<T> Add<T>(T t, int? parentId = default(int?)) where T: IWCObject
+        public async Task<T> Add<T>(T t, int? parentId = default(int?)) where T : IWCObject
+        {
+            return await Add<T>(t, "", parentId);
+        }
+        public async Task<T> Add<T>(T t, string language, int? parentId = default(int?)) where T : IWCObject
         {
             T newObject = default(T);
             try
             {
+                Dictionary<string, string> parameters = string.IsNullOrEmpty(language) ? null : new Dictionary<string, string>() { { "lang", language } }; ;
+
                 if ((t is ProductAttributeTerm) && parentId.HasValue)
-                    newObject = await wc.Attribute.Terms.Add(t, parentId.Value);
+                    newObject = await wc.Attribute.Terms.Add(t, parentId.Value, parameters);
                 else if ((t is ProductAttribute))
-                    newObject = await wc.Attribute.Add(t);
+                    newObject = await wc.Attribute.Add(t, parameters);
                 else if ((t is Product))
-                    newObject = await wc.Product.Add(t);
+                    newObject = await wc.Product.Add(t, parameters);
             }
             catch (Exception ex)
             {
@@ -43,7 +49,7 @@ namespace WooCommerceClient.Services
             {
                 Utils.WriteLog($"Error : wc.{typeof(T).Name}.Add() returned null");
             }
-            else 
+            else
             {
                 t.id = newObject.id.Value;
             }
@@ -53,15 +59,24 @@ namespace WooCommerceClient.Services
 
         public async Task<T> Update<T>(T t, int? parentId = default(int?)) where T : IWCObject
         {
+            return await Update<T>(t, "", parentId);
+        }
+
+        public async Task<T> Update<T>(T t, string language, int? parentId = default(int?)) where T : IWCObject
+        {
             T newObject = default(T);
             try
             {
+                Dictionary<string, string> parameters = string.IsNullOrEmpty(language) ? null : new Dictionary<string, string>() { { "lang", language } }; ;
+
                 if ((t is ProductAttributeTerm) && t.id.HasValue && parentId.HasValue)
-                    newObject = await wc.Attribute.Terms.Update(t.id.Value, t, parentId.Value);
+                {
+                    newObject = await wc.Attribute.Terms.Update(t.id.Value, t, parentId.Value, parameters);
+                }
                 else if ((t is ProductAttribute) && t.id.HasValue)
-                    newObject = await wc.Attribute.Update(t.id.Value, t);
+                    newObject = await wc.Attribute.Update(t.id.Value, t, parameters);
                 else if ((t is Product) && t.id.HasValue)
-                    newObject = await wc.Product.Update(t.id.Value, t);
+                    newObject = await wc.Product.Update(t.id.Value, t, parameters);
             }
             catch (Exception ex)
             {
@@ -76,11 +91,17 @@ namespace WooCommerceClient.Services
             return newObject;
         }
 
-        internal async Task<object> Delete<T>(int idValue, bool force) where T: IWCObject
+        internal async Task<object> Delete<T>(int idValue, bool force) where T : IWCObject
+        {
+            return await Delete<T>(idValue, "", force);
+        }
+
+        internal async Task<object> Delete<T>(int idValue, string language, bool force) where T : IWCObject
         {
             if (typeof(T) == typeof(Product))
             {
-                return await wc.Product.Delete(idValue, force);
+                Dictionary<string, string> parameters = string.IsNullOrEmpty(language) ? null : new Dictionary<string, string>() { { "lang", language } }; ;
+                return await wc.Product.Delete(idValue, force, parameters);
             }
 
             return null;

@@ -15,34 +15,33 @@ namespace WooCommerceClient.Services
         {
             string errmsg = "";
             List<string> prodNoList = new List<string>();
-            db.GetProductsToDelete(ref prodNoList, 
+ 
+            db.GetProductsToDelete(ref prodNoList,
                 Utils.ReadConfigInt32("DeleteDisabledProducts", 0) > 1 ? DateTime.MinValue : sync.LastestSync, out errmsg);
 
             Utils.WriteLog("Products to delete: " + prodNoList.Count());
             if (prodNoList.Count > 0)
             {
+                List<Product> wooProducts = GetOnlineProducts();
                 // force: false will only update Val1=10 if Val1 was 9 (delete request)
-                bool _ = SyncDeleteProducts(prodNoList, 44, false).Result;
-                _ = SyncDeleteProducts(prodNoList, 45, false).Result;
+                bool _ = SyncDeleteProducts(prodNoList, 44, wooProducts, false).Result;
+                _ = SyncDeleteProducts(prodNoList, 45, wooProducts,false).Result;
 
             }
 
             return errmsg;
         }
 
-        private static async Task<bool> SyncDeleteProducts(List<string> prodNoListToDelete, int langNo, bool force)
+        private static async Task<bool> SyncDeleteProducts(List<string> prodNoListToDelete, int langNo, List<Product> wooProducts, bool force)
         {
-            // foreach(string s in prodNoListToDelete)
-            //   Utils.WriteLog($"{s}");
+            if (wooProducts == null)
+                return false;
 
             string lang = Utils.LangNoToString(langNo);
             DBaccess db = new DBaccess();
             try
             {
                 var wcApi = new WC_API();
-                List<Product> wooProducts = GetOnlineProducts();
-                if (wooProducts == null)
-                    return false;
 
                 foreach (string sku in prodNoListToDelete)
                 {
@@ -56,8 +55,11 @@ namespace WooCommerceClient.Services
                             if (ok == null)
                                 Utils.WriteLog($"Error:  wc.Product.Delete returned null");
                             else
+                            {
                                 if (db.UpdateDeletedProduct(sku, force, out string errmsg) == false)
-                                Utils.WriteLog($"Error:  db.UpdateDeletedProduct() - {errmsg}");
+                                    Utils.WriteLog($"Error:  db.UpdateDeletedProduct() - {errmsg}");
+                                wooProducts.Remove(wooProduct);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -98,7 +100,7 @@ namespace WooCommerceClient.Services
             }
             if (wooProducts == null)
             {
-                Utils.WriteLog($"Error: WooCommerceHelpers.GetWooCommerceProducts(2)");
+                Utils.WriteLog($"Error: WooCommerceHelpers.GetWooCommerceProducts(2) - GetWooCommerceProducts returned null");
             }
 
             return wooProducts;
@@ -112,7 +114,7 @@ namespace WooCommerceClient.Services
             List<ProductCategory> wooCommerceCategories = WooCommerceHelpers.GetWooCommerceCategories().Result;
 
             List<Product> products = new List<Product>();
-            if (db.GetProducts(Utils.ReadConfigInt32("SyncProducts", 0) > 0 ? SyncType.Products : SyncType.Stock, 
+            if (db.GetProducts(Utils.ReadConfigInt32("SyncProducts", 0) > 0 ? SyncType.Products : SyncType.Stock,
                 ref products, sync.LastestSync, wooCommerceAttributes, wooCommerceTags, wooCommerceCategories, 45, out errmsg) == false)
             {
                 Utils.WriteLog("ERROR db.GetProducts(da) - " + errmsg);
@@ -182,9 +184,10 @@ namespace WooCommerceClient.Services
             Utils.WriteLog("Products stock=0 to delete: " + prodNoListZeroStock.Count());
             if (prodNoListZeroStock.Count > 0)
             {
+                List<Product> wooProducts = GetOnlineProducts();
                 // force: tru will update  Val1=10 regardless of previous state..
-                bool _ = SyncDeleteProducts(prodNoListZeroStock, 44, true).Result;
-                _ = SyncDeleteProducts(prodNoListZeroStock, 45, true).Result;
+                bool _ = SyncDeleteProducts(prodNoListZeroStock, 44, wooProducts, true).Result;
+                _ = SyncDeleteProducts(prodNoListZeroStock, 45, wooProducts, true).Result;
             }
 
             return errmsg;
@@ -207,26 +210,15 @@ namespace WooCommerceClient.Services
                 List<ProductCategory> wooCategoires = await WooCommerceHelpers.GetWooCommerceCategories();
                 List<ProductAttribute> wooAttributes = await WooCommerceHelpers.GetWooCommerceAttributes();
                 // 
-                List<Product> wooProducts = null;
-                try
-                {
-                    wooProducts = await WooCommerceHelpers.GetWooCommerceProducts();
-                }
-                catch (Exception ex)
-                {
-                    Utils.WriteLog("Error in GetWooCommerceProducts() .." + ex.Message);
-                    return false;
-                }
+
+                List<Product> wooProducts = GetOnlineProducts();
 
                 if (wooProducts == null)
-                {
-                    Utils.WriteLog("Error in GetWooCommerceProducts(2) (null)");
                     return false;
-                }
+
                 Utils.WriteLog($"{wooProducts.Count} existing products in WooCommerce..");
 
-
-                Utils.WriteLog("Add/update products..");
+                Utils.WriteLog($"Add/update products..({products.Count})");
 
                 foreach (Product product in products)
                 {
@@ -315,7 +307,7 @@ namespace WooCommerceClient.Services
                                         DisableSlug(product_da.categories);
                                         DisableSlug(product_da.tags);
 
-                                        Utils.WriteLog($"wcApi.Add(2)({JsonConvert.SerializeObject(product)})");
+                                       // Utils.WriteLog($"wcApi.Add(2)({JsonConvert.SerializeObject(product)})");
                                         (product.upsell_ids as List<int>).Add(product_da.id.Value);
                                     }
                                     //   }
@@ -336,12 +328,12 @@ namespace WooCommerceClient.Services
                                     product.translation_of = product_da.id.ToString();
                             }
 
-                            if ((product.lang == "en") || 
-                                (product.lang == "da" && product.upsell_ids != null && (product.upsell_ids as List<int>).Count > 0))
-                            {
+                           // if ((product.lang == "en") ||
+                          //      (product.lang == "da" && product.upsell_ids != null && (product.upsell_ids as List<int>).Count > 0))
+                          //  {
                                 Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
                                 newUpdatedProduct = await wcApi.Update(product);
-                            }
+                          //  }
                         }
                         catch (Exception ex)
                         {
@@ -488,6 +480,11 @@ namespace WooCommerceClient.Services
 
         internal static bool DeleteAllProduct()
         {
+            MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
+                      Utils.ReadConfigString("WooCommerceKey", ""),
+                      Utils.ReadConfigString("WooCommerceSecret", ""));
+            WCObject wc = new WCObject(rest);
+
             List<Product> wooProducts = GetOnlineProducts();
             if (wooProducts == null)
             {
@@ -498,7 +495,7 @@ namespace WooCommerceClient.Services
             foreach (Product wooProduct in wooProducts)
             {
 
-                if (wooProduct.lang == "en")
+               /* if (wooProduct.lang == "en")
                 {
                     try
                     {
@@ -514,8 +511,8 @@ namespace WooCommerceClient.Services
                         Utils.WriteLog($"{ex.Message}");
                         Utils.WriteLog($"Funny id: {wooProduct.id}");
                     }
-                }
-                /*try
+                }*/
+                try
                 {
                     var ok = wc.Product.Delete(wooProduct.id.Value, true).Result;
                     if (ok == null)
@@ -530,7 +527,7 @@ namespace WooCommerceClient.Services
                 {
                     Utils.WriteLog($"Exception  wc.Attribute.Terms.Delete() - {ex.Message}");
                     return false;
-                }*/
+                }
             }
 
             return true;
