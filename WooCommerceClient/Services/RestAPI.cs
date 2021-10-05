@@ -194,8 +194,12 @@ namespace WooCommerceClient.Services
                         if (!parms.ContainsKey("consumer_secret"))
                             parms.Add("consumer_secret", wc_secret);
 
+                       // Response.Cookies = httpWebRequest.CookieContainer.
+                        
                         httpWebRequest = (HttpWebRequest)WebRequest.Create(wc_url + GetOAuthEndPoint(method.ToString(), endpoint, parms));
+
                     }
+
                 }
                 else
                 {
@@ -204,6 +208,12 @@ namespace WooCommerceClient.Services
                         httpWebRequest.Headers["Authorization"] = "Bearer " + JWT_Object.token;
                 }
 
+                if (Utils.ReadConfigInt32("DeleteRequestCookies", 0) > 0)
+                {
+                    if (Utils.ReadConfigInt32("DebugJSON", 0) > 0)
+                        Utils.WriteLog("Debug: Deleting cookies..");
+                    httpWebRequest.CookieContainer = null;
+                }
                 // start the stream immediately
                 httpWebRequest.Method = method.ToString();
                 httpWebRequest.AllowReadStreamBuffering = false;
@@ -319,7 +329,8 @@ namespace WooCommerceClient.Services
                     string requestParms = string.Empty;
                     foreach (var parm in parms)
                         requestParms += parm.Key + "=" + parm.Value + "&";
-
+                    if (Utils.ReadConfigInt32("DebugJSON", 0) > 0)
+                        Utils.WriteLog($"Debug: {requestParms}");
                     return endpoint + "?" + requestParms.TrimEnd('&');
                 }
             }

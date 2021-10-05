@@ -70,13 +70,13 @@ namespace WooCommerceClient.Services
                 Dictionary<string, string> parameters = string.IsNullOrEmpty(language) ? null : new Dictionary<string, string>() { { "lang", language } }; ;
 
                 if ((t is ProductAttributeTerm) && t.id.HasValue && parentId.HasValue)
-                {
                     newObject = await wc.Attribute.Terms.Update(t.id.Value, t, parentId.Value, parameters);
-                }
                 else if ((t is ProductAttribute) && t.id.HasValue)
                     newObject = await wc.Attribute.Update(t.id.Value, t, parameters);
                 else if ((t is Product) && t.id.HasValue)
+                {
                     newObject = await wc.Product.Update(t.id.Value, t, parameters);
+                }
             }
             catch (Exception ex)
             {

@@ -30,6 +30,8 @@ namespace WooCommerceClient.Models.Visma
         
         public string Eco { get; set; } = "";
         public string Volume { get; set; } = "";
+
+        public string VolumeL { get; set; } = "";
         public string Alcohol { get; set; } = "";
 
         public List<string> Grapes { get; set; }

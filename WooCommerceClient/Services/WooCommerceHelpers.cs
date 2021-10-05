@@ -129,7 +129,7 @@ namespace WooCommerceClient
             var attributespage = await wc.Attribute.GetAll();
             foreach (ProductAttribute a in attributespage)
             {
-                Utils.WriteLog($"Attribute  {a.name} {a.slug}");
+                Utils.WriteLog($"Attribute  {a.name} {a.id}");
                 attributes.Add(a);
             }
 
@@ -162,43 +162,62 @@ namespace WooCommerceClient
                        Utils.ReadConfigString("WooCommerceKey", ""),
                        Utils.ReadConfigString("WooCommerceSecret", ""));
             WCObject wc = new WCObject(rest);
-
+            Utils.WriteLog($"Getting terms for attribute id {attributeId}..");
             //Get all products attributes.
-            List<ProductAttributeTerm> terms = new List<ProductAttributeTerm>();
+            List <ProductAttributeTerm> terms = new List<ProductAttributeTerm>();
 
             int per_page = 100;
             int offset = 0;
 
             while (true)
             {
-                var attributespage = await wc.Attribute.Terms.GetAll(attributeId, new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "da" } });
-                if (attributespage == null || attributespage?.Count == 0)
-                    break;
-                foreach (ProductAttributeTerm a in attributespage)
-                {
-                    Utils.WriteLog($"Attribute {a.name} {a.slug} id:{a.id}");
-                    terms.Add(a);
+                try { 
+                    var attributespage = await wc.Attribute.Terms.GetAll(attributeId, new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "da" } });
+                    if (attributespage == null || attributespage?.Count == 0)
+                        break;
+                    foreach (ProductAttributeTerm a in attributespage)
+                    {
+                        Utils.WriteLog($"Attribute {a.name}   id:{a.id}");
+                        terms.Add(a);
+                    }
+                    if (attributespage.Count < per_page)
+                        break;
+                    offset += per_page;
                 }
-                if (attributespage.Count < per_page)
+                catch (Exception ex)
+                {
+                    Utils.WriteLog($"WARNING: wc.Attribute.Terms.GetAll returned error - {ex.Message}");
                     break;
-                offset += per_page;
+                }
             }
             offset = 0;
             if (Utils.ReadConfigInt32("DoTranslation", 0) > 0)
             {
                 while (true)
                 {
-                    var attributespage = await wc.Attribute.Terms.GetAll(attributeId, new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "en" } });
-                    if (attributespage == null || attributespage?.Count == 0)
-                        break;
-                    foreach (ProductAttributeTerm a in attributespage)
+                   
+                    try
                     {
-                        //  Utils.WriteLog($"Attribute {a.name} {a.slug} id:{a.id}");
-                        terms.Add(a);
+                        var attributespage = await wc.Attribute.Terms.GetAll(attributeId, new Dictionary<string, string>() { { "per_page", per_page.ToString() }, { "offset", offset.ToString() }, { "lang", "en" } });
+
+
+                        if (attributespage == null || attributespage?.Count == 0)
+                            break;
+                        foreach (ProductAttributeTerm a in attributespage)
+                        {
+                            //  Utils.WriteLog($"Attribute {a.name}  id:{a.id}");
+                            terms.Add(a);
+                        }
+                        if (attributespage.Count < per_page)
+                            break;
+                        offset += per_page;
                     }
-                    if (attributespage.Count < per_page)
+                    catch (Exception ex)
+                    {
+                        Utils.WriteLog($"WARNING: wc.Attribute.Terms.GetAll returned error - {ex.Message}");
                         break;
-                    offset += per_page;
+                    }
+
                 }
             }
 

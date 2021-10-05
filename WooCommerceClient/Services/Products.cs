@@ -106,6 +106,34 @@ namespace WooCommerceClient.Services
             return wooProducts;
         }
 
+        public static List<int> GetUnrelatedEnglishProducts()
+        {
+            List<Product> wooProducts = null;
+            try
+            {
+                wooProducts = WooCommerceHelpers.GetWooCommerceProducts().Result;
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLog($"Error: WooCommerceHelpers.GetWooCommerceProducts()", ex);
+            }
+            if (wooProducts == null)
+            {
+                Utils.WriteLog($"Error: WooCommerceHelpers.GetWooCommerceProducts(2) - GetWooCommerceProducts returned null");
+            }
+            List<int> wooProductsUnrelated = new List<int>();
+            foreach(Product product in wooProducts)
+            {
+                if (product.lang == "en")
+                    if (product.translations != null)
+                        if (product.translations.da.HasValue == false || product.translations.da.Value == 0)
+                          wooProductsUnrelated.Add(product.id.Value);
+            }
+
+            return wooProductsUnrelated;
+        }
+
+
         internal static string Sync(DBaccess db, Sync sync)
         {
             string errmsg = "";
@@ -255,7 +283,7 @@ namespace WooCommerceClient.Services
                                 product.sku += "-en";
 
                             Utils.WriteLog($"wcApi.Add({JsonConvert.SerializeObject(product)})");
-                            newUpdatedProduct = await wcApi.Add(product);
+                            newUpdatedProduct = await wcApi.Add(product, product.lang);
                             product.id = newUpdatedProduct.id;
                         }
                         catch (Exception ex)
@@ -331,8 +359,8 @@ namespace WooCommerceClient.Services
                            // if ((product.lang == "en") ||
                           //      (product.lang == "da" && product.upsell_ids != null && (product.upsell_ids as List<int>).Count > 0))
                           //  {
-                                Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
-                                newUpdatedProduct = await wcApi.Update(product);
+                               // Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
+                                newUpdatedProduct = await wcApi.Update(product, product.lang);
                           //  }
                         }
                         catch (Exception ex)
@@ -341,7 +369,7 @@ namespace WooCommerceClient.Services
                             System.Threading.Thread.Sleep(2000);
                             try
                             {
-                                Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
+                               // Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
                                 newUpdatedProduct = await wcApi.Update(product);
                             }
                             catch (Exception ex2)
@@ -366,6 +394,7 @@ namespace WooCommerceClient.Services
 
                 }
 
+             
                 if (hasNewProduct)
                 {
 
@@ -419,8 +448,8 @@ namespace WooCommerceClient.Services
 
 
 
-                        Utils.WriteLog($"wcApi.Update(2)({JsonConvert.SerializeObject(product)})");
-                        await wcApi.Update(product);
+                      //  Utils.WriteLog($"wcApi.Update(2)({JsonConvert.SerializeObject(product)})");
+                        await wcApi.Update(product, product.lang);
                     }
                 }
             }
@@ -478,7 +507,7 @@ namespace WooCommerceClient.Services
             }
         }
 
-        internal static bool DeleteAllProduct()
+        internal static bool DeleteAllProducts()
         {
             MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
                       Utils.ReadConfigString("WooCommerceKey", ""),
@@ -532,5 +561,35 @@ namespace WooCommerceClient.Services
 
             return true;
         }
+
+        public static bool DeleteProduct(int id)
+        {
+            MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
+                      Utils.ReadConfigString("WooCommerceKey", ""),
+                      Utils.ReadConfigString("WooCommerceSecret", ""));
+           
+
+            try
+            {
+                WCObject wc = new WCObject(rest);
+                var ok = wc.Product.Delete(id, true).Result;
+                if (ok == null)
+                {
+                    Utils.WriteLog($"Error:  wc.Product.Delete returned null");
+                    return false;
+                }
+                else
+                    Utils.WriteLog($"Product id {id} deleted.");
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLog($"Exception  wc.Attribute.Terms.Delete() - {ex.Message}");
+                return false;
+            }
+         
+
+            return true;
+        }
+
     }
 }

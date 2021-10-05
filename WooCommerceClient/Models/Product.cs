@@ -452,7 +452,7 @@ namespace WooCommerceClient.Models
         /// <summary>
         /// Language code e.g. 'en'
         /// </summary>
-        [DataMember(EmitDefaultValue = true)]
+        [DataMember(EmitDefaultValue = false)]
         public string translation_of { get; set; } = null;
         
 
@@ -460,9 +460,9 @@ namespace WooCommerceClient.Models
         /// <summary>
         /// Point to master product ID
         /// </summary>
-        //[DataMember(EmitDefaultValue = false)]
-       // [IgnoreDataMember]
-     //   public Translations translations { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        [IgnoreDataMember]
+        public Translations translations { get; set; }
 
         [IgnoreDataMember]
         public int vismaUnitsPerProdNo { get; set; }

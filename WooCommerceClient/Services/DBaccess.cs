@@ -43,7 +43,7 @@ namespace WooCommerceClient.Services
             "WHERE FreeInf1.#9#=9 ";
 
         public static string queryGetProductList =
-            "SELECT DISTINCT Prod.ProdNo, Prod.StSaleUn, ISNULL(Prod.WebPg2,'') as WebPg2, Prod.Gr10, Prod.ProdTp4, Prod.ProdTp2, " +
+            "SELECT DISTINCT Prod.ProdNo, Prod.StSaleUn, Prod.Descr, ISNULL(Prod.WebPg2,'') as WebPg2, Prod.Gr10, Prod.ProdTp4, Prod.ProdTp2, " +
             "ISNULL(TXT2.Txt,'') as gruppe, " +
             "ISNULL(TXT3.Txt,'') as type, " +
             "ISNULL((SELECT TOP 1 ISNULL(ScanCd.SCd, '') FROM ScanCd WHERE ScanCd.ProdNo = Prod.ProdNo ORDER BY ChDt Desc),''), " +
@@ -382,11 +382,11 @@ namespace WooCommerceClient.Services
                         new ProductAttributeTerm()
                         {
                             name = name,
-                            slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
+                            slug = null, //langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
                             visma_id = y,
                             lang = lang,
                             //translations = new Translations()
-                        });
+                        });// ;
                 }
 
             }
@@ -433,12 +433,12 @@ namespace WooCommerceClient.Services
                 if (activeOnly)
                     sql = "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),R6.Rno  FROM R6 " +
                             "INNER JOIN Prod ON Prod.R6=R6.RNo " +
-                            "INNER JOIN FreeInf1 F1 ON F1.ProdNo=Prod.ProdNo AND F1.InfCatNo=45 " +
+                            "INNER JOIN FreeInf1 F1 ON F1.ProdNo=Prod.ProdNo AND F1.InfCatNo=45 " +   // STILL USING DANISH NAMES!
                             "LEFT OUTER JOIN FreeInf1 F2 ON F2.R6=R6.Rno AND F2.InfCatNo=81 " +
                             "WHERE R6.Nm<>'' AND  Prod.Gr7 < 7 AND Prod.Descr <> '' AND F1.Val1 <> 0 " +
                             "ORDER BY R6.Nm";
                 else
-                    sql = "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),Rno FROM R6 " +
+                    sql = "SELECT DISTINCT R6.Nm,ISNULL(F2.NoteNm,''),Rno FROM R6 " +                 // Descriptions are translated
                             "LEFT OUTER JOIN FreeInf1 F2 ON F2.R6=R6.Rno AND F2.InfCatNo=81 " +
                             "WHERE R6.Nm <> '' AND LTRIM(RTRIM(R6.Inf2))='' " +
                             "ORDER BY R6.Nm";
@@ -924,7 +924,8 @@ namespace WooCommerceClient.Services
             attributeTerms.Clear();
             string lang = Utils.LangNoToString(langNo);
 
-            string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
+            //     string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
+            string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>=0 ORDER BY WdtU";
 
             SqlCommand command = new SqlCommand(sql, connection)
             {
@@ -948,11 +949,11 @@ namespace WooCommerceClient.Services
                     attributeTerms.Add(new ProductAttributeTerm()
                     {
                         name = name,
-                        slug = langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
-                        visma_id = Decimal.ToInt32(ll * 1000.0M),
+                        slug = null, //langNo != 45 ? Utils.SanitizeSlugNameNew(name) + "-" + lang : Utils.SanitizeSlugNameNew(name),
+                        visma_id = ll == 0.0M ? 100000000 : Decimal.ToInt32(ll * 1000.0M),
                         lang = lang,
                         //translations = new Translations()
-                    });
+                    }) ;
                 }
 
             }
@@ -1261,11 +1262,21 @@ namespace WooCommerceClient.Services
                         sku = reader.GetString(idx++), // ProdNo
                         vismaUnitsPerProdNo = reader.GetInt32(idx++)
                     };
-                    string originalTitle = reader.GetString(idx++).Trim();  //Prod.WebPg2 or FI_EN.WebPg
-                    item.name = Utils.SanitizeName(originalTitle);
+                    string descr = Utils.SanitizeName(reader.GetString(idx++).Trim());
+                    string longTitle = reader.GetString(idx++).Trim();  //Prod.WebPg2 or FI_EN.WebPg
+
+                    if (langNo == 44)
+                        longTitle = longTitle.Replace(" - ØKO", " - BIO");
+                    item.name = Utils.SanitizeName(longTitle);
 
                     item.meta_data = new List<ProductMeta>();
-                    ProductMeta meta = new ProductMeta() { key = "_original_title", value = originalTitle };
+
+                    // 2021105 Shave off dangling '-' (smagekasser..)
+                    longTitle = longTitle.Trim();
+                    if (longTitle.EndsWith("-"))
+                        longTitle = longTitle.Substring(0, longTitle.Length - 1).Trim();
+
+                    ProductMeta meta = new ProductMeta() { key = "_original_title", value = descr };
                     item.meta_data.Add(meta);
 
                     item.lang = Utils.LangNoToString(langNo);
@@ -1300,18 +1311,33 @@ namespace WooCommerceClient.Services
                     //    item.name = exDescription;
 
                     decimal d = reader.GetDecimal(idx++);
+
+                    string volStringL = Utils.DecimalToStringFloating(d) + " l";
                     //Convert to ml
+
+                    string volString = "";
                     if (d < 1.0M)
+                    {
                         d *= 1000;
-                    string volString = Utils.DecimalToStringFloating(d) + " ml";
+                        volString = Utils.DecimalToStringFloating(d) + " ml";
+                    } 
+                    else if (d >= 1.0M)
+                    { 
+                        volString = Utils.DecimalToStringFloating(d) + " l";
+                    }   
                     // 20210810 - add volume to title/name
                     if (d > 0 && productType != 20) // Do not add vol if 'Smagekasse'
                         item.name += " " + volString;
+                    item.name = item.name.Trim();
+
+                    // 2021105 Shave off dangling '-' (smagekasser..)
+                    if (item.name.EndsWith("-"))
+                        item.name = item.name.Substring(0, item.name.Length - 1).Trim();
 
                     int n = reader.GetInt32(idx++);                         // Prod.Gr3  
                     bool okologisk = (n == 1);
 
-                    // Actually now used anymore...
+                    // Actually not used anymore...
                     //item.slug = Utils.SanitizeSlugNameNew(item.name); //20210923 don't send slug to webshop
 
                     d = reader.GetDecimal(idx++);                           // Prod.Free1
@@ -1405,6 +1431,7 @@ namespace WooCommerceClient.Services
                     {
                         ProdNo = item.sku,
                         Volume = volString,
+                        VolumeL = volStringL,
                         Alcohol = alcString,
                         Country = land,
                         Region = omraade,
@@ -1514,7 +1541,7 @@ namespace WooCommerceClient.Services
                     if (detail.HasBOM)
                     {
                         List<VismaBomItem> bomItems = new List<VismaBomItem>();
-                        if (GetProducerBOM(product.sku, ref bomItems, out errmsg) == false)
+                        if (GetProductBOM(product.sku, langNo, ref bomItems, out errmsg) == false)
                             return false;
                         //                        string prodList = "";
                         int minStock = 9999;
@@ -1618,7 +1645,7 @@ namespace WooCommerceClient.Services
                             product.attributes.Add(a);
                             //   Utils.WriteLog($"ProductType set for products {product.sku}.");
                         }
-
+                         
                         // Disabled 20210204 - moved to category
                         /* if (detail.Eco != "" && detail.HasBOM == false)
                          {
@@ -1636,10 +1663,11 @@ namespace WooCommerceClient.Services
                             //    Utils.WriteLog($"Year set for products {product.sku}.");
                         }
 
-                        if (detail.Volume != "" && detail.HasBOM == false)
+                        if (detail.VolumeL != "" && detail.HasBOM == false)
                         {
                             ProductAttribute volumeAttribute = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameVolume);
-                            ProductAttributeLine a = new ProductAttributeLine() { id = volumeAttribute.id, name = volumeAttribute.name, visible = true, options = new List<string> { detail.Volume } };
+                            ProductAttributeLine a = new ProductAttributeLine() { id = volumeAttribute.id, name = volumeAttribute.name, visible = true, options = new List<string> { detail.VolumeL } };
+                          //  Utils.WriteLog($"Volume {detail.VolumeL} set for products {product.sku} {volumeAttribute.id}");
                             product.attributes.Add(a);
                             //    Utils.WriteLog($"Volume set for products {product.sku}.");
                         }
@@ -1932,7 +1960,7 @@ namespace WooCommerceClient.Services
                */
 
 
-        public bool GetProducerBOM(string prodNo, ref List<VismaBomItem> vismaBomItems, out string errmsg)
+        public bool GetProductBOM(string prodNo, int langNo, ref List<VismaBomItem> vismaBomItems, out string errmsg)
         {
             errmsg = "";
             vismaBomItems.Clear();
@@ -1965,9 +1993,22 @@ namespace WooCommerceClient.Services
                     int productType = reader.GetInt32(5);
                     if (descr1 != "")
                         descr = descr1;
+
+
+                    if (langNo == 44)
+                        descr = descr.Replace(" - ØKO", " - BIO");
+                    string volString = "";
                     if (vol < 1.0M)
+                    {
                         vol *= 1000;
-                    string volString = Utils.DecimalToStringFloating(vol) + " ml";
+                        volString = Utils.DecimalToStringFloating(vol) + " ml";
+                    }
+                    else if (vol >= 1.0M)
+                    {
+                        volString = Utils.DecimalToStringFloating(vol) + " l";
+                    }
+
+                    
                     // 20210810 - add volume to title/name
                     if (vol > 0 && productType != 20) // Do not add vol if 'Smagekasse'
                         descr += " " + volString;

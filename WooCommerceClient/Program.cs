@@ -50,17 +50,36 @@ namespace WooCommerceClient
             }
 
             //////////////////////////////
-            /// DeleteAllProducts
+            /// Special run - DeleteAllProducts
             //////////////////////////////
             if (Utils.ReadConfigInt32("DeleteAllProducts", 0) > 0)
             {
-                Products.DeleteAllProduct();
+                Products.DeleteAllProducts();
                 if (Utils.ReadConfigInt32("DeleteAllProducts", 0) > 1)
                 {
                     Attributes.DeleteAllAttributes();
                     Tags.DeleteAllTags();
                 }
+
+                return;
             }
+            //////////////////////////////
+            /// Special run - Delete any english products without link to danish mother product.
+            //////////////////////////////
+            if (Utils.ReadConfigInt32("DeleteAllUnrelatedProducts", 0) > 0)
+            {
+
+                List<int> unrelatedIDList = Products.GetUnrelatedEnglishProducts();
+                foreach (int id in unrelatedIDList)
+                {
+                    Utils.WriteLog($"Found unrelated en-product {id}");
+                       Products.DeleteProduct(id);
+                }
+
+                return;
+            }
+
+            
 
             //////////////////////////////
             /// DeleteZeroStockProducts

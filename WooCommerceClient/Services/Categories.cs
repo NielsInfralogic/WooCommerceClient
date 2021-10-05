@@ -18,6 +18,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.NoDiscount,
+                name_da = Constants.NoDiscount,
                 lang = "da"
             });
             //categories.Add(new ProductCategory() { vismaParentCatNo = 0, parent = null, name = Constants.NoDiscountEn, slug = Utils.SanitizeSlugNameNew(Constants.NoDiscount) + "-en", lang = "en", translations = new Translations() { nameforda = Constants.NoDiscount, nameforen = Constants.NoDiscountEn } });
@@ -26,6 +27,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.NoDiscountEn,
+                name_da = Constants.NoDiscount,
                 lang = "en"
             });
             //categories.Add(new ProductCategory() { vismaParentCatNo = 0, parent = null, name = Constants.CategoryOekologisk, slug = Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug), lang = "da", translations = new Translations() { nameforda = Constants.CategoryOekologisk, nameforen = Constants.CategoryOekologiskEn } });
@@ -34,6 +36,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.CategoryOekologisk,
+                name_da = Constants.CategoryOekologisk,
                 lang = "da"
             });
             //categories.Add(new ProductCategory() { vismaParentCatNo = 0, parent = null, name = Constants.CategoryOekologiskEn, slug = Utils.SanitizeSlugNameNew(Constants.CategoryOekologiskSlug) + "-en", lang = "en", translations = new Translations() { nameforda = Constants.CategoryOekologisk, nameforen = Constants.CategoryOekologiskEn } });
@@ -42,6 +45,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.CategoryOekologiskEn,
+                name_da = Constants.CategoryOekologisk,
                 lang = "en"
             });
             //categories.Add(new ProductCategory() { vismaParentCatNo = 0, parent = null, name = Constants.ProductWithBom, slug = Utils.SanitizeSlugNameNew(Constants.ProductWithBom), lang = "da", translations = new Translations() { nameforda = Constants.ProductWithBom, nameforen = Constants.ProductWithBomEn } });
@@ -50,6 +54,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.ProductWithBom,
+                name_da = Constants.ProductWithBom,
                 lang = "da"
             });
             //categories.Add(new ProductCategory() { vismaParentCatNo = 0, parent = null, name = Constants.ProductWithBomEn, slug = Utils.SanitizeSlugNameNew(Constants.ProductWithBom) + "-en", lang = "en", translations = new Translations() { nameforda = Constants.ProductWithBom, nameforen = Constants.ProductWithBomEn } });
@@ -58,6 +63,7 @@ namespace WooCommerceClient.Services
                 vismaParentCatNo = 0,
                 parent = null,
                 name = Constants.ProductWithBomEn,
+                name_da = Constants.ProductWithBom,
                 lang = "en"
             });
 
@@ -93,11 +99,12 @@ namespace WooCommerceClient.Services
                     {
                         try
                         {
+                            Utils.WriteLog($"Adding category  {category.name}  ");
                             newUpdatedCategory = await wc.Category.Add(category, new Dictionary<string, string>() { { "lang", category.lang } });
                         }
                         catch (Exception ex)
                         {
-                            Utils.WriteLog($"Error : wc.Category.Add() - {ex.Message} {category.name} {category.slug} ");
+                            Utils.WriteLog($"Error : wc.Category.Add() - {ex.Message} {category.name}  ");
                             return false;
                         }
                         if (newUpdatedCategory == null)
@@ -114,10 +121,12 @@ namespace WooCommerceClient.Services
                             category.id = existingCategory.id;
                             if (category.lang == "en")
                             {
-                                ProductCategory category_da = wooProductCategories.FirstOrDefault(p => p.lang == "da" && p.slug == category.slug.Replace("-en", ""));
+                                ProductCategory category_da = wooProductCategories.FirstOrDefault(p => p.lang == "da" && p.name  == category.name_da);
                                 if (category_da != null)
                                     category.translation_of = category_da.id.Value.ToString();
                             }
+
+                            Utils.WriteLog($"Updating category  {category.name}  ");
                             newUpdatedCategory = await wc.Category.Update(category.id.Value, category, new Dictionary<string, string>() { { "lang", category.lang } });
                         }
                         catch (Exception ex)
@@ -267,7 +276,7 @@ namespace WooCommerceClient.Services
                 {
                     if (category.lang == "en")
                     {
-                        ProductCategory category_da = wooProductCategories.FirstOrDefault(p => p.lang == "da" && p.slug == category.slug.Replace("-en", ""));
+                        ProductCategory category_da = wooProductCategories.FirstOrDefault(p => p.lang == "da" && p.name == category.name_da);
                         if (category_da != null)
                         {
                             category.translation_of = category_da.id.Value.ToString();
