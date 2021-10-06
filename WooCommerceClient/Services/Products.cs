@@ -142,12 +142,11 @@ namespace WooCommerceClient.Services
             List<ProductCategory> wooCommerceCategories = WooCommerceHelpers.GetWooCommerceCategories().Result;
 
             List<Product> products = new List<Product>();
-            if (db.GetProducts(Utils.ReadConfigInt32("SyncProducts", 0) > 0 ? SyncType.Products : SyncType.Stock,
-                ref products, sync.LastestSync, wooCommerceAttributes, wooCommerceTags, wooCommerceCategories, 45, out errmsg) == false)
+            if (db.GetProducts(Utils.ReadConfigInt32("SyncProducts", 0) > 0 ? SyncType.Products : SyncType.Stock,  ref products, sync.LastestSync, wooCommerceAttributes, wooCommerceTags, wooCommerceCategories, 45, out errmsg) == false)
             {
                 Utils.WriteLog("ERROR db.GetProducts(da) - " + errmsg);
             }
-            if (Utils.ReadConfigInt32("DoTranslation", 0) > 0)
+            if (Utils.ReadConfigInt32("DoTranslation", 0) > 0 && Utils.ReadConfigInt32("SyncProducts", 0) > 0)
             {
                 List<Product> products_en = new List<Product>();
                 if (db.GetProducts(Utils.ReadConfigInt32("SyncProducts", 0) > 0 ? SyncType.Products : SyncType.Stock, ref products_en, sync.LastestSync,
@@ -177,7 +176,7 @@ namespace WooCommerceClient.Services
             bool ret = true;
             if (products.Count > 0)
             {
-                ret = SyncProducts(products).Result;
+                ret = SyncProducts(products, Utils.ReadConfigInt32("SyncProducts", 0) == 0).Result;
 
             }
 
@@ -221,7 +220,7 @@ namespace WooCommerceClient.Services
             return errmsg;
         }
 
-        private static async Task<bool> SyncProducts(List<Product> products)
+        private static async Task<bool> SyncProducts(List<Product> products, bool stockOnly)
         {
             try
             {
@@ -266,17 +265,19 @@ namespace WooCommerceClient.Services
 
                     GetWebShopInformations(wooTags, wooCategoires, wooAttributes, product);
 
-                    Product existingProduct = wooProducts.FirstOrDefault(
-                        p => p.sku.Replace("-en", "") == product.sku.Replace("-en", "") && p.lang == product.lang);
+                    Product existingProduct = wooProducts.FirstOrDefault( p => p.sku.Replace("-en", "") == product.sku.Replace("-en", "") && p.lang == product.lang);
                     Product newUpdatedProduct = null;
                     if (existingProduct == null)
                     {
-                        Utils.WriteLog($"Adding product {product.sku}..");
+                        if (stockOnly)
+                            continue;
+                        Utils.WriteLog($"Adding product {product.sku} {product.lang}..");
                         try
                         {
-                            // 20210528 - leave slug undefined
+                           
                             hasNewProduct = true;
 
+                            // 20210528 - leave slug undefined
                             product.slug = null;
 
                             if (product.lang == "en" && product.sku.IndexOf("-en") == -1)
@@ -302,7 +303,7 @@ namespace WooCommerceClient.Services
                     {
                         try
                         {
-                            Utils.WriteLog($"Updating product {product.sku}");
+                            Utils.WriteLog($"Updating product {product.sku} {product.lang}..");
 
                             product.id = existingProduct.id;
                             //product.slug = existingProduct.slug;  //20210923 send no more slug to webshop
@@ -314,17 +315,14 @@ namespace WooCommerceClient.Services
                             if (product.lang == "en" && product.sku.IndexOf("-en") == -1)
                                 product.sku += "-en";
 
-
                             product.upsell_ids = new List<int>();
+
                             // Only set upsell on danish products!!
-                            if (product.lang == "da" && product.vismaRelatedProduct != null &&
-                                product.vismaRelatedProduct.Count > 0)
+                            if (product.lang == "da" && product.vismaRelatedProduct != null &&  product.vismaRelatedProduct.Count > 0)
                             {
                                 foreach (string r in product.vismaRelatedProduct)
                                 {
 
-                                    //  if (product.lang == "da")
-                                    //  {
                                     Product product_da = wooProducts.FirstOrDefault(p => p.sku == r && p.lang == "da");
                                     if (product_da != null && product_da.id.HasValue)
                                     {
@@ -338,14 +336,6 @@ namespace WooCommerceClient.Services
                                        // Utils.WriteLog($"wcApi.Add(2)({JsonConvert.SerializeObject(product)})");
                                         (product.upsell_ids as List<int>).Add(product_da.id.Value);
                                     }
-                                    //   }
-                                    //   else if (product.lang == "en")
-                                    //   {
-                                    //      Product product_en = wooProducts.FirstOrDefault(p => p.sku == r + "-en" && p.lang == "en");
-                                    //      if (product_en != null)
-                                    //          if (product_en.id.HasValue)
-                                    //                product.upsell_ids.Add(product_en.id.Value);
-                                    //   }
                                 }
                             }
 
@@ -356,17 +346,13 @@ namespace WooCommerceClient.Services
                                     product.translation_of = product_da.id.ToString();
                             }
 
-                           // if ((product.lang == "en") ||
-                          //      (product.lang == "da" && product.upsell_ids != null && (product.upsell_ids as List<int>).Count > 0))
-                          //  {
-                               // Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
-                                newUpdatedProduct = await wcApi.Update(product, product.lang);
-                          //  }
+                            newUpdatedProduct = await wcApi.Update(product, product.lang);
+                     
                         }
                         catch (Exception ex)
                         {
                             Utils.WriteLog($"Error : wc.Product.Update() - {ex.Message}");
-                            System.Threading.Thread.Sleep(2000);
+                            /*System.Threading.Thread.Sleep(2000);
                             try
                             {
                                // Utils.WriteLog($"wcApi.Update({JsonConvert.SerializeObject(product)})");
@@ -375,7 +361,7 @@ namespace WooCommerceClient.Services
                             catch (Exception ex2)
                             {
                                 Utils.WriteLog($"Error : wc.Product.Update() - {ex2.Message}");
-                            }
+                            }*/
 
                             continue;
                         }
@@ -420,20 +406,6 @@ namespace WooCommerceClient.Services
                                 {
                                     (product.upsell_ids as List<int>).Add(product_da.id.Value);
                                 }
-                                /*                            if (product.lang == "da")
-                                                            {
-                                                                Product product_da = wooProducts.FirstOrDefault(p => p.sku == r && p.lang == "da");
-                                                                if (product_da != null)
-                                                                    if (product_da.id.HasValue)
-                                                                        product.upsell_ids.Add(product_da.id.Value);
-                                                            }
-                                                            else if (product.lang == "en")
-                                                            {
-                                                                Product product_en = wooProducts.FirstOrDefault(p => p.sku == r + "-en" && p.lang == "en");
-                                                                if (product_en != null)
-                                                                    if (product_en.id.HasValue)
-                                                                        product.upsell_ids.Add(product_en.id.Value);
-                                                            }*/
                             }
                         }
                         Utils.WriteLog($"Updating product with adjusted upsell_ids {product.sku}..");

@@ -73,7 +73,7 @@ namespace WooCommerceClient
                 foreach (int id in unrelatedIDList)
                 {
                     Utils.WriteLog($"Found unrelated en-product {id}");
-                       Products.DeleteProduct(id);
+                    Products.DeleteProduct(id);
                 }
 
                 return;
