@@ -129,7 +129,7 @@ namespace WooCommerceClient
             var attributespage = await wc.Attribute.GetAll();
             foreach (ProductAttribute a in attributespage)
             {
-                Utils.WriteLog($"Attribute  {a.name} {a.id}");
+               // Utils.WriteLog($"Attribute  {a.name} {a.id}");
                 attributes.Add(a);
             }
 
@@ -177,7 +177,7 @@ namespace WooCommerceClient
                         break;
                     foreach (ProductAttributeTerm a in attributespage)
                     {
-                        Utils.WriteLog($"Attribute {a.name}   id:{a.id}");
+                        //Utils.WriteLog($"Attribute {a.name}   id:{a.id}");
                         terms.Add(a);
                     }
                     if (attributespage.Count < per_page)

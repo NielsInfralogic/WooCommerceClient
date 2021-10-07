@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Models\Islug.cs" />
     <Compile Include="Models\IWCObject.cs" />
+    <Compile Include="Models\Visma\AttributeChangeDates.cs" />
     <Compile Include="Services\BaseClass.cs" />
     <Compile Include="Services\Categories.cs" />
     <Compile Include="Services\Constants.cs" />

@@ -243,55 +243,6 @@ namespace WooCommerceClient.Services
 
         }
 
-        /*     public bool GetTags(ref List<ProductTag> tags, out string errmsg)
-             {
-                 tags.Clear();
-                 errmsg = "";
-
-                 string sql = queryGetTags;
-
-                 SqlCommand command = new SqlCommand(sql, connection)
-                 {
-                     CommandType = CommandType.Text,
-                     CommandTimeout = 600
-                 };
-
-                 SqlDataReader reader = null;
-
-                 try
-                 {
-                     if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                         connection.Open();
-
-                     reader = command.ExecuteReader();
-
-                     while (reader.Read())
-                     {
-                         string name = reader.GetString(0);
-                         tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name) });
-                     }
-
-                 }
-                 catch (Exception ex)
-                 {
-                     errmsg = ex.Message;
-
-                     return false;
-                 }
-                 finally
-                 {
-                     if (reader != null)
-                         reader.Close();
-                     if (connection.State == ConnectionState.Open)
-                         connection.Close();
-                     command.Dispose();
-                 }
-
-                 tags.Add(new ProductTag() { name = "Økologisk", slug = Utils.SanitizeSlugName("Økologisk") });
-
-                 return true;
-             }
-        */
 
         public bool GetAttributeTermsForGrapes(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
@@ -717,54 +668,6 @@ namespace WooCommerceClient.Services
         }
 
 
-        /*   public bool GetAttributeTermsForCounty(ref List<ProductAttributeTerm> attributeTerms, out string errmsg)
-           {
-               attributeTerms.Clear();
-               errmsg = "";
-
-               string sql = "SELECT DISTINCT txt,CAST(txtno as int) from txt where TxtTp=37 and Lang = 45 ";
-
-               SqlCommand command = new SqlCommand(sql, connection)
-               {
-                   CommandType = CommandType.Text,
-                   CommandTimeout = 600
-               };
-
-               SqlDataReader reader = null;
-
-               try
-               {
-                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                       connection.Open();
-
-                   reader = command.ExecuteReader();
-
-                   while (reader.Read())
-                   {
-                       string name = reader.GetString(0);
-                       int vid = reader.GetInt32(1);
-                       attributeTerms.Add(new ProductAttributeTerm() { name = name, slug = Utils.SanitizeSlugName(name), visma_id = vid });
-                   }
-
-               }
-               catch (Exception ex)
-               {
-                   errmsg = ex.Message;
-
-                   return false;
-               }
-               finally
-               {
-                   if (reader != null)
-                       reader.Close();
-                   if (connection.State == ConnectionState.Open)
-                       connection.Close();
-                   command.Dispose();
-               }
-
-               return true;
-           }*/
-
         public bool GetAttributeTermsForType(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
             attributeTerms.Clear();
@@ -823,101 +726,6 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-        /*      public bool GetTagsForYear(ref List<ProductTag> tags, int langNo, out string errmsg)
-              {
-                  errmsg = "";
-
-                  string sql = "SELECT DISTINCT ProdTp4 FROM Prod WHERE ProdTp4>0";
-
-
-
-                  SqlCommand command = new SqlCommand(sql, connection)
-                  {
-                      CommandType = CommandType.Text,
-                      CommandTimeout = 600
-                  };
-
-                  SqlDataReader reader = null;
-
-                  try
-                  {
-                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                          connection.Open();
-
-                      reader = command.ExecuteReader();
-
-                      while (reader.Read())
-                      {
-                          int y = reader.GetInt32(0);
-                          string name = Constants.YearPrefix + ( y == 1 ? "N.V." : y.ToString());
-                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
-                      }
-
-                  }
-                  catch (Exception ex)
-                  {
-                      errmsg = ex.Message;
-
-                      return false;
-                  }
-                  finally
-                  {
-                      if (reader != null)
-                          reader.Close();
-                      if (connection.State == ConnectionState.Open)
-                          connection.Close();
-                      command.Dispose();
-                  }
-
-                  return true;
-              }
-        */
-        /*      public bool GetTagsForVolume(ref List<ProductTag> tags, int langNo, out string errmsg)
-              {
-                  errmsg = "";
-
-                  string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
-
-                  SqlCommand command = new SqlCommand(sql, connection)
-                  {
-                      CommandType = CommandType.Text,
-                      CommandTimeout = 600
-                  };
-
-                  SqlDataReader reader = null;
-
-                  try
-                  {
-                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                          connection.Open();
-
-                      reader = command.ExecuteReader();
-
-                      while (reader.Read())
-                      {
-                          string name = Constants.VolumePrefix + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + " l";
-                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
-                      }
-
-                  }
-                  catch (Exception ex)
-                  {
-                      errmsg = ex.Message;
-
-                      return false;
-                  }
-                  finally
-                  {
-                      if (reader != null)
-                          reader.Close();
-                      if (connection.State == ConnectionState.Open)
-                          connection.Close();
-                      command.Dispose();
-                  }
-
-                  return true;
-              }
-        */
         public bool GetAttributeTermsForVolume(ref List<ProductAttributeTerm> attributeTerms, int langNo, out string errmsg)
         {
             errmsg = "";
@@ -1031,87 +839,6 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-        /*   public bool GetCategories(ref List<ProductCategory> categories, out string errmsg)
-           {
-               categories.Clear();
-               errmsg = "";
-
-               string sql = queryGetCategories;
-
-               SqlCommand command = new SqlCommand(sql, connection)
-               {
-                   CommandType = CommandType.Text,
-                   CommandTimeout = 600
-               };
-
-               SqlDataReader reader = null;
-
-               try
-               {
-                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                       connection.Open();
-
-                   reader = command.ExecuteReader();
-
-                   while (reader.Read())
-                   {
-                       int catNo = reader.GetInt32(0);
-                       string name = reader.GetString(1).Trim();
-                       int parent_catNo = reader.GetInt32(2);
-
-
-
-                       int level = reader.GetInt32(3);
-                       ProductCategory c = categories.FirstOrDefault(p => p.vismaCatNo == catNo);
-                       if (c == null)
-                       {
-
-                           if (categories.Exists(p => p.name == name && p.vismaLevel != parent_catNo))
-                               name += ".";
-
-                           categories.Add(new ProductCategory()
-                           {
-                               name = name,
-                               slug = Utils.SanitizeSlugName(name),
-                               description = name,
-
-                               vismaCatNo = catNo,
-                               vismaParentCatNo = parent_catNo,
-                               vismaLevel = level
-                           });
-                       }
-                   }
-
-               }
-               catch (Exception ex)
-               {
-                   errmsg = ex.Message;
-
-                   return false;
-               }
-               finally
-               {
-                   if (reader != null)
-                       reader.Close();
-                   if (connection.State == ConnectionState.Open)
-                       connection.Close();
-                   command.Dispose();
-               }
-
-
-               foreach(ProductCategory c in categories)
-               {
-                   if (c.vismaParentCatNo > 0)
-                   {
-                       // Find parent
-                       ProductCategory c_parent = categories.FirstOrDefault(p => p.vismaCatNo == c.vismaParentCatNo);
-                       if (c_parent != null)
-                           c.parent = c_parent.id;
-                   }
-               }
-               return true;
-           }
-        */
 
         public bool GetProductsToProcess(ref List<string> products, DateTime latestSyncTime, out string errmsg)
         {
@@ -1833,132 +1560,6 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-        //public bool GetCategoryTag(string prodNo, ref List<string> categoryTags, out string errmsg)
-        //{
-        //    errmsg = "";
-        //    categoryTags.Clear();
-        //    string p = prodNo.Replace("'", "''");
-
-        //    string sql = $"SELECT DISTINCT ProdCat.Descr FROM ProdCat INNER JOIN FreeInf1 ON FreeInf1.PrCatNo=ProdCat.PrCatNo WHERE FreeInf1.InfCatNo=74 AND FreeInf1.ProdNo='{p}'";
-        //    SqlCommand command = new SqlCommand(sql, connection)
-        //    {
-        //        CommandType = CommandType.Text
-        //    };
-
-        //    SqlDataReader reader = null;
-
-        //    try
-        //    {
-        //        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-        //            connection.Open();
-
-        //        reader = command.ExecuteReader();
-
-        //        while (reader.Read())
-        //        {
-        //            string s = reader.GetString(0);
-        //            if (categoryTags.Contains(s) == false)
-        //            {
-        //                categoryTags.Add(s);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        errmsg = "GetPrice() - " + ex.Message + " " + sql;
-
-        //        return false;
-        //    }
-        //    finally
-        //    {
-        //        if (reader != null)
-        //            reader.Close();
-        //        if (connection.State == ConnectionState.Open)
-        //            connection.Close();
-        //        command.Dispose();
-        //    }
-
-        //    if (categoryTags.Count == 0)
-        //        categoryTags.Add("Øvrige");
-
-        //    return true;
-        //}
-
-
-        /*       public bool GetProductDetails(string prodNo, ref VismaProductDetails item, out string errmsg)
-               {
-                   errmsg = "";
-
-                   string sql = queryGetProductDetails.Replace("#1#", prodNo.Replace("'", "''"));
-
-                   SqlCommand command = new SqlCommand(sql, connection)
-                   {
-                       CommandType = CommandType.Text
-                   };
-
-                   SqlDataReader reader = null;
-
-                   try
-                   {
-                       if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                           connection.Open();
-
-                       reader = command.ExecuteReader();
-
-                       if (reader.Read())
-                       {
-                           int idx = 0;
-                           item.Type = reader.GetString(idx++).Trim();
-                           item.Year = reader.GetInt32(idx++).ToString();// ProdTp4
-                           if (item.Year == "0")
-                               item.Year = "";
-                           if (item.Year == "1")
-                               item.Year = "NV";
-                           int organic = reader.GetInt32(idx++);           // Gr3
-                           int bio = reader.GetInt32(idx++);               // Gr5
-                           int nature = reader.GetInt32(idx++);            // Gr11
-                           item.Organic = organic == 1 ? "Ja" : "Nej";
-                           item.Biodynamic = bio == 1 ? "Ja" : "Nej";
-                           item.Naturewine = nature == 1 ? "Ja" : "Nej";
-
-                           item.Weight = reader.GetDecimal(idx++);                     // TareU
-                           item.Content = reader.GetDecimal(idx++) * 100.0M;                        // WdtU
-                           item.Alcohol = reader.GetDecimal(idx++);  //Prod.Free1,
-                           if (item.Alcohol > 990.0M)
-                               item.Alcohol = 0.0M;
-                           item.UnitsPerPackage = reader.GetInt32(idx++);              // ProdTp2
-                           item.Country = reader.GetString(idx++).Trim();  // Cat1 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
-
-                           item.District = reader.GetString(idx++).Trim();  // Cat2 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
-                           item.County = reader.GetString(idx++).Trim();  // Cat3 tekst
-                           item.Producer = reader.GetString(idx++).Trim();  // Cat4 tekst
-                           item.Classification = reader.GetString(idx++).Trim();  // Cat5 tekst
-                           item.Mark = reader.GetString(idx++).Trim();  // Cat6 tekst
-
-                           item.SubType = reader.GetString(idx++).Trim(); // SubType
-                       }
-                   }
-                   catch (Exception ex)
-                   {
-                       errmsg = "GetProductDetails() - " + ex.Message + " " + sql;
-
-                       return false;
-                   }
-                   finally
-                   {
-                       if (reader != null)
-                           reader.Close();
-                       if (connection.State == ConnectionState.Open)
-                           connection.Close();
-                       command.Dispose();
-                   }
-                   string scores = "";
-                   if (GetProductScores(prodNo, ref scores, out errmsg))
-                       item.Scores = scores;
-                   return true;
-               }
-               */
-
 
         public bool GetProductBOM(string prodNo, int langNo, ref List<VismaBomItem> vismaBomItems, out string errmsg)
         {
@@ -2560,57 +2161,93 @@ namespace WooCommerceClient.Services
         }
 
 
+        public bool GetAttributeChangeDates(ref AttributeChangeDates attributeChangeDates, out string errmsg)
+        {
+            errmsg = "";
+            string sql = "SELECT  'ProducerDa',MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint)) FROM R6 WHERE Nm<>'' AND LTRIM(RTRIM(Inf2))='' " +
+                            "UNION " +
+                            "SELECT 'ProducerEn',MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM FreeInf1 WHERE InfCatNo = 81 " +
+                            "UNION " +
+                            "SELECT  'Grapes',MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM txt WHERE txttp = 159 " +
+                            "UNION " +
+                            "SELECT  'Country', MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM txt WHERE txttp = 38 " +
+                            "UNION " +
+                            "SELECT  'Region', MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM txt WHERE txttp = 36 " +
+                            "UNION " +
+                            "SELECT  'Type', MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM txt WHERE txttp = 72 " +
+                            "UNION " +
+                            "SELECT  'Volume', MAX(CAST(ChDt as bigint) * 10000 + CAST(Chtm as bigint))  FROM Prod  ";
+            SqlCommand command;
+            SqlDataReader reader = null;
 
-        /*      public bool GetSecondaryCategories(string prodNo, ref List<string> descr, out string errmsg)
-              {
-                  errmsg = "";
-                  descr.Clear();
+            command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text,
+                CommandTimeout = 600
+            };
 
-                  string sql =
-                          "SELECT DISTINCT ProdCat.Descr " +
-                             "FROM FreeInf1 WITH (NOLOCK) " +
-                             "INNER JOIN ProdCat WITH (NOLOCK) ON ProdCat.PrCatNo = FreeInf1.PrCatNo " +
-                             $"WHERE FreeInf1.InfCatNo = 90 AND FreeInf1.PrCatNo > 0 AND FreeInf1.ProdNo={prodNo} AND ProdCat.Descr<>'' ";
+            try
+            {
+                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                    connection.Open();
 
-                  SqlCommand command;
-                  SqlDataReader reader = null;
+                reader = command.ExecuteReader();
 
-                  command = new SqlCommand(sql, connection)
-                  {
-                      CommandType = CommandType.Text,
-                      CommandTimeout = 600
-                  };
+                int row = 0;
+                while (reader.Read())
+                {
+                    string s = reader.GetString(0).Trim();
+                    long chdttm = reader.GetInt64(1);
+                    long chdt = chdttm / 10000;
+                    long chtm = chdttm - 10000 * chdt;
+                    DateTime tm = Utils.VismaDate2DateTime((int)chdt, (int)chtm);
+                    switch (row)                    
+                    {
+                        case 0:
+                            attributeChangeDates.ChDtProducerDa = tm;
+                            break;
+                        case 1:
+                            attributeChangeDates.ChDtProducerEn = tm;
+                            break;
+                        case 2:
+                            attributeChangeDates.ChDtGrapes = tm;
+                            break;
+                        case 3:
+                            attributeChangeDates.ChDtCountry = tm;
+                            break;
+                        case 4:
+                            attributeChangeDates.ChDtRegion = tm;
+                            break;
+                        case 5:
+                            attributeChangeDates.ChDtType = tm;
+                            break;
+                        case 6:
+                            attributeChangeDates.ChDtVolume = tm;
+                            attributeChangeDates.ChDtYear = tm;
+                            break;
+                    }
+                    row++;
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                errmsg = "GetAttributeChangeDates() - " + ex.Message;
 
-                  try
-                  {
-                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
-                          connection.Open();
+                return false;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+                if (connection != null)
+                    connection.Close();
+                command.Dispose();
+            }
 
-                      reader = command.ExecuteReader();
+            return true;
 
-                      while (reader.Read())
-                      {
-                          descr.Add(reader.GetString(0).Trim());
-                      }
-                  }
-                  catch (Exception ex)
-                  {
-                      errmsg = "GetLongDescription() - " + ex.Message;
-
-                      return false;
-                  }
-                  finally
-                  {
-                      if (reader != null)
-                          reader.Close();
-                      if (connection != null)
-                          connection.Close();
-                      command.Dispose();
-                  }
-
-                  return true;
-              }
-        */
+        }
 
         public bool GetProductImage(string prodNo, ref string url, out string errmsg)
         {
@@ -3544,6 +3181,458 @@ namespace WooCommerceClient.Services
             }
             return curNo;
         }
+
+
+        /*   public bool GetAttributeTermsForCounty(ref List<ProductAttributeTerm> attributeTerms, out string errmsg)
+           {
+               attributeTerms.Clear();
+               errmsg = "";
+
+               string sql = "SELECT DISTINCT txt,CAST(txtno as int) from txt where TxtTp=37 and Lang = 45 ";
+
+               SqlCommand command = new SqlCommand(sql, connection)
+               {
+                   CommandType = CommandType.Text,
+                   CommandTimeout = 600
+               };
+
+               SqlDataReader reader = null;
+
+               try
+               {
+                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                       connection.Open();
+
+                   reader = command.ExecuteReader();
+
+                   while (reader.Read())
+                   {
+                       string name = reader.GetString(0);
+                       int vid = reader.GetInt32(1);
+                       attributeTerms.Add(new ProductAttributeTerm() { name = name, slug = Utils.SanitizeSlugName(name), visma_id = vid });
+                   }
+
+               }
+               catch (Exception ex)
+               {
+                   errmsg = ex.Message;
+
+                   return false;
+               }
+               finally
+               {
+                   if (reader != null)
+                       reader.Close();
+                   if (connection.State == ConnectionState.Open)
+                       connection.Close();
+                   command.Dispose();
+               }
+
+               return true;
+           }*/
+
+        /*      public bool GetSecondaryCategories(string prodNo, ref List<string> descr, out string errmsg)
+              {
+                  errmsg = "";
+                  descr.Clear();
+
+                  string sql =
+                          "SELECT DISTINCT ProdCat.Descr " +
+                             "FROM FreeInf1 WITH (NOLOCK) " +
+                             "INNER JOIN ProdCat WITH (NOLOCK) ON ProdCat.PrCatNo = FreeInf1.PrCatNo " +
+                             $"WHERE FreeInf1.InfCatNo = 90 AND FreeInf1.PrCatNo > 0 AND FreeInf1.ProdNo={prodNo} AND ProdCat.Descr<>'' ";
+
+                  SqlCommand command;
+                  SqlDataReader reader = null;
+
+                  command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
+
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
+
+                      reader = command.ExecuteReader();
+
+                      while (reader.Read())
+                      {
+                          descr.Add(reader.GetString(0).Trim());
+                      }
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = "GetLongDescription() - " + ex.Message;
+
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection != null)
+                          connection.Close();
+                      command.Dispose();
+                  }
+
+                  return true;
+              }
+        */
+
+        //public bool GetCategoryTag(string prodNo, ref List<string> categoryTags, out string errmsg)
+        //{
+        //    errmsg = "";
+        //    categoryTags.Clear();
+        //    string p = prodNo.Replace("'", "''");
+
+        //    string sql = $"SELECT DISTINCT ProdCat.Descr FROM ProdCat INNER JOIN FreeInf1 ON FreeInf1.PrCatNo=ProdCat.PrCatNo WHERE FreeInf1.InfCatNo=74 AND FreeInf1.ProdNo='{p}'";
+        //    SqlCommand command = new SqlCommand(sql, connection)
+        //    {
+        //        CommandType = CommandType.Text
+        //    };
+
+        //    SqlDataReader reader = null;
+
+        //    try
+        //    {
+        //        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+        //            connection.Open();
+
+        //        reader = command.ExecuteReader();
+
+        //        while (reader.Read())
+        //        {
+        //            string s = reader.GetString(0);
+        //            if (categoryTags.Contains(s) == false)
+        //            {
+        //                categoryTags.Add(s);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errmsg = "GetPrice() - " + ex.Message + " " + sql;
+
+        //        return false;
+        //    }
+        //    finally
+        //    {
+        //        if (reader != null)
+        //            reader.Close();
+        //        if (connection.State == ConnectionState.Open)
+        //            connection.Close();
+        //        command.Dispose();
+        //    }
+
+        //    if (categoryTags.Count == 0)
+        //        categoryTags.Add("Øvrige");
+
+        //    return true;
+        //}
+
+
+        /*       public bool GetProductDetails(string prodNo, ref VismaProductDetails item, out string errmsg)
+               {
+                   errmsg = "";
+
+                   string sql = queryGetProductDetails.Replace("#1#", prodNo.Replace("'", "''"));
+
+                   SqlCommand command = new SqlCommand(sql, connection)
+                   {
+                       CommandType = CommandType.Text
+                   };
+
+                   SqlDataReader reader = null;
+
+                   try
+                   {
+                       if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                           connection.Open();
+
+                       reader = command.ExecuteReader();
+
+                       if (reader.Read())
+                       {
+                           int idx = 0;
+                           item.Type = reader.GetString(idx++).Trim();
+                           item.Year = reader.GetInt32(idx++).ToString();// ProdTp4
+                           if (item.Year == "0")
+                               item.Year = "";
+                           if (item.Year == "1")
+                               item.Year = "NV";
+                           int organic = reader.GetInt32(idx++);           // Gr3
+                           int bio = reader.GetInt32(idx++);               // Gr5
+                           int nature = reader.GetInt32(idx++);            // Gr11
+                           item.Organic = organic == 1 ? "Ja" : "Nej";
+                           item.Biodynamic = bio == 1 ? "Ja" : "Nej";
+                           item.Naturewine = nature == 1 ? "Ja" : "Nej";
+
+                           item.Weight = reader.GetDecimal(idx++);                     // TareU
+                           item.Content = reader.GetDecimal(idx++) * 100.0M;                        // WdtU
+                           item.Alcohol = reader.GetDecimal(idx++);  //Prod.Free1,
+                           if (item.Alcohol > 990.0M)
+                               item.Alcohol = 0.0M;
+                           item.UnitsPerPackage = reader.GetInt32(idx++);              // ProdTp2
+                           item.Country = reader.GetString(idx++).Trim();  // Cat1 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
+
+                           item.District = reader.GetString(idx++).Trim();  // Cat2 tekst = reader.GetString(idx++).Trim();  // Cat2 tekst
+                           item.County = reader.GetString(idx++).Trim();  // Cat3 tekst
+                           item.Producer = reader.GetString(idx++).Trim();  // Cat4 tekst
+                           item.Classification = reader.GetString(idx++).Trim();  // Cat5 tekst
+                           item.Mark = reader.GetString(idx++).Trim();  // Cat6 tekst
+
+                           item.SubType = reader.GetString(idx++).Trim(); // SubType
+                       }
+                   }
+                   catch (Exception ex)
+                   {
+                       errmsg = "GetProductDetails() - " + ex.Message + " " + sql;
+
+                       return false;
+                   }
+                   finally
+                   {
+                       if (reader != null)
+                           reader.Close();
+                       if (connection.State == ConnectionState.Open)
+                           connection.Close();
+                       command.Dispose();
+                   }
+                   string scores = "";
+                   if (GetProductScores(prodNo, ref scores, out errmsg))
+                       item.Scores = scores;
+                   return true;
+               }
+               */
+
+        /*   public bool GetCategories(ref List<ProductCategory> categories, out string errmsg)
+           {
+               categories.Clear();
+               errmsg = "";
+
+               string sql = queryGetCategories;
+
+               SqlCommand command = new SqlCommand(sql, connection)
+               {
+                   CommandType = CommandType.Text,
+                   CommandTimeout = 600
+               };
+
+               SqlDataReader reader = null;
+
+               try
+               {
+                   if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                       connection.Open();
+
+                   reader = command.ExecuteReader();
+
+                   while (reader.Read())
+                   {
+                       int catNo = reader.GetInt32(0);
+                       string name = reader.GetString(1).Trim();
+                       int parent_catNo = reader.GetInt32(2);
+
+
+
+                       int level = reader.GetInt32(3);
+                       ProductCategory c = categories.FirstOrDefault(p => p.vismaCatNo == catNo);
+                       if (c == null)
+                       {
+
+                           if (categories.Exists(p => p.name == name && p.vismaLevel != parent_catNo))
+                               name += ".";
+
+                           categories.Add(new ProductCategory()
+                           {
+                               name = name,
+                               slug = Utils.SanitizeSlugName(name),
+                               description = name,
+
+                               vismaCatNo = catNo,
+                               vismaParentCatNo = parent_catNo,
+                               vismaLevel = level
+                           });
+                       }
+                   }
+
+               }
+               catch (Exception ex)
+               {
+                   errmsg = ex.Message;
+
+                   return false;
+               }
+               finally
+               {
+                   if (reader != null)
+                       reader.Close();
+                   if (connection.State == ConnectionState.Open)
+                       connection.Close();
+                   command.Dispose();
+               }
+
+
+               foreach(ProductCategory c in categories)
+               {
+                   if (c.vismaParentCatNo > 0)
+                   {
+                       // Find parent
+                       ProductCategory c_parent = categories.FirstOrDefault(p => p.vismaCatNo == c.vismaParentCatNo);
+                       if (c_parent != null)
+                           c.parent = c_parent.id;
+                   }
+               }
+               return true;
+           }
+        */
+        /*     public bool GetTags(ref List<ProductTag> tags, out string errmsg)
+             {
+                 tags.Clear();
+                 errmsg = "";
+
+                 string sql = queryGetTags;
+
+                 SqlCommand command = new SqlCommand(sql, connection)
+                 {
+                     CommandType = CommandType.Text,
+                     CommandTimeout = 600
+                 };
+
+                 SqlDataReader reader = null;
+
+                 try
+                 {
+                     if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                         connection.Open();
+
+                     reader = command.ExecuteReader();
+
+                     while (reader.Read())
+                     {
+                         string name = reader.GetString(0);
+                         tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name) });
+                     }
+
+                 }
+                 catch (Exception ex)
+                 {
+                     errmsg = ex.Message;
+
+                     return false;
+                 }
+                 finally
+                 {
+                     if (reader != null)
+                         reader.Close();
+                     if (connection.State == ConnectionState.Open)
+                         connection.Close();
+                     command.Dispose();
+                 }
+
+                 tags.Add(new ProductTag() { name = "Økologisk", slug = Utils.SanitizeSlugName("Økologisk") });
+
+                 return true;
+             }
+        */
+        /*      public bool GetTagsForYear(ref List<ProductTag> tags, int langNo, out string errmsg)
+              {
+                  errmsg = "";
+
+                  string sql = "SELECT DISTINCT ProdTp4 FROM Prod WHERE ProdTp4>0";
+
+
+
+                  SqlCommand command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
+
+                  SqlDataReader reader = null;
+
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
+
+                      reader = command.ExecuteReader();
+
+                      while (reader.Read())
+                      {
+                          int y = reader.GetInt32(0);
+                          string name = Constants.YearPrefix + ( y == 1 ? "N.V." : y.ToString());
+                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugNameNew(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
+                      }
+
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = ex.Message;
+
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection.State == ConnectionState.Open)
+                          connection.Close();
+                      command.Dispose();
+                  }
+
+                  return true;
+              }
+        */
+        /*      public bool GetTagsForVolume(ref List<ProductTag> tags, int langNo, out string errmsg)
+              {
+                  errmsg = "";
+
+                  string sql = "SELECT DISTINCT WdtU FROM Prod WHERE  WdtU>0 ORDER BY WdtU";
+
+                  SqlCommand command = new SqlCommand(sql, connection)
+                  {
+                      CommandType = CommandType.Text,
+                      CommandTimeout = 600
+                  };
+
+                  SqlDataReader reader = null;
+
+                  try
+                  {
+                      if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                          connection.Open();
+
+                      reader = command.ExecuteReader();
+
+                      while (reader.Read())
+                      {
+                          string name = Constants.VolumePrefix + Utils.DecimalToStringFloating(reader.GetDecimal(0)) + " l";
+                          tags.Add(new ProductTag() { name = name, slug = Utils.SanitizeSlugName(name), lang = Utils.LangNoToString(langNo), translations = new Translations() });
+                      }
+
+                  }
+                  catch (Exception ex)
+                  {
+                      errmsg = ex.Message;
+
+                      return false;
+                  }
+                  finally
+                  {
+                      if (reader != null)
+                          reader.Close();
+                      if (connection.State == ConnectionState.Open)
+                          connection.Close();
+                      command.Dispose();
+                  }
+
+                  return true;
+              }
+        */
 
     }
 }

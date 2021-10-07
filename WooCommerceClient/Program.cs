@@ -79,7 +79,21 @@ namespace WooCommerceClient
                 return;
             }
 
+
             
+            //////////////////////////////
+            /// Special run - Delete any english products without link to danish mother product.
+            //////////////////////////////
+            if (Utils.ReadConfigInt32("ListAllUnrelatedAttributes", 0) > 0)
+            {
+
+                Attributes.ListUnrelatedEnglishAttributes();
+               
+
+                return;
+            }
+
+
 
             //////////////////////////////
             /// DeleteZeroStockProducts
@@ -87,10 +101,11 @@ namespace WooCommerceClient
             if (Utils.ReadConfigInt32("DeleteZeroStockProducts", 0) > 0)
             {
                 errmsg += Products.DeleteStockSync(db);
+                return;
             }
 
             // skip tags,attributes if no products to update
-            if (productsTest.Count >= 0) //???
+            if (productsTest.Count > 0 || (Utils.ReadConfigInt32("SyncProducts", 0) == 0 && Utils.ReadConfigInt32("SyncStocks", 0) == 0))
             {
                 //////////////////////////////
                 /// SyncTags
@@ -105,7 +120,12 @@ namespace WooCommerceClient
                 //////////////////////////////
                 if (Utils.ReadConfigInt32("SyncAttributes", 0) > 0)
                 {
-                    errmsg += Attributes.SyncAttributTerms(db);
+                    Sync sync = Utils.ReadSyncTime(Utils.ReadConfigString("AttributeSyncFile", ""));
+
+                    errmsg += Attributes.SyncAttributTerms(db, sync.LastestSync);
+
+                    sync.LastestSync = DateTime.Now;
+                    Utils.WriteSyncTime(sync, Utils.ReadConfigString("AttributeSyncFile", ""));
                 }
 
                 //////////////////////////////

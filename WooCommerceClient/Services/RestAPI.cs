@@ -210,8 +210,8 @@ namespace WooCommerceClient.Services
 
                 if (Utils.ReadConfigInt32("DeleteRequestCookies", 0) > 0)
                 {
-                    if (Utils.ReadConfigInt32("DebugJSON", 0) > 0)
-                        Utils.WriteLog("Debug: Deleting cookies..");
+                    //if (Utils.ReadConfigInt32("DebugJSON", 0) > 0)
+                    //    Utils.WriteLog("Debug: Deleting cookies..");
                     httpWebRequest.CookieContainer = null;
                 }
                 // start the stream immediately

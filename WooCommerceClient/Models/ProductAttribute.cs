@@ -146,11 +146,12 @@ namespace WooCommerceClient.Models
         public string translation_of { get; set; } = null;
 
         /// <summary>
-        /// Point to master product ID
+        /// Point to master attribute ID
         /// </summary>
-        ///[DataMember(EmitDefaultValue = false)]
-       // [IgnoreDataMember]
-        //public Translations translations { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        [IgnoreDataMember]
+        public Translations translations { get; set; }
+
     }
 
 
