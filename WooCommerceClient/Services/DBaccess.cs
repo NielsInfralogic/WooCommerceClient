@@ -602,6 +602,107 @@ namespace WooCommerceClient.Services
             return true;
         }
 
+
+        public bool GetTextInEnglish(string danishText, int txttp, ref string englishText, out string errmsg)
+        {
+            errmsg = "";
+            englishText = danishText;
+
+            string sql = $"SELECT T2.Txt FROM Txt T1 INNER JOIN Txt T2 ON T1.TxtNo=T2.TxtNo WHERE T1.TxtTp={txttp} AND T2.TxtTp={txttp} AND T1.Txt='{danishText}'";
+
+            SqlCommand command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text,
+                CommandTimeout = 600
+            };
+
+            SqlDataReader reader = null;
+
+            try
+            {
+                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                    connection.Open();
+
+                reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    englishText = reader.GetString(0);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                errmsg = ex.Message;
+
+                return false;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
+                command.Dispose();
+            }
+
+            return true;
+
+        }
+
+        public bool GetAlternativeCountryForRegion(string region, int langNo, ref string country, out string errmsg)
+        {
+            country = "";
+            errmsg = "";
+            string sql = $"SELECT P2.Descr FROM Prodcat P1 INNER JOIN ProdCat P2 ON P2.PrCatNo=P1.MainPrC where P1.Descr='{region}'";
+
+            SqlCommand command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text,
+                CommandTimeout = 600
+            };
+
+            SqlDataReader reader = null;
+
+            try
+            {
+                if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+                    connection.Open();
+
+                reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    country = reader.GetString(0);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                errmsg = ex.Message;
+
+                return false;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
+                command.Dispose();
+            }
+
+            if (langNo == 44)
+            {
+                string engText = "";
+                GetTextInEnglish(country, 38, ref engText, out errmsg);
+                if (engText != "")
+                    country = engText;
+            }
+            return true;
+
+        }
+
         public bool GetAttributeTermsForRegion(ref List<ProductAttributeTerm> attributeTerms, ref List<RegionCountryRelation> regionCountryRelationList, int langNo, out string errmsg)
         {
             regionCountryRelationList.Clear();
@@ -2201,6 +2302,7 @@ namespace WooCommerceClient.Services
                     long chdt = chdttm / 10000;
                     long chtm = chdttm - 10000 * chdt;
                     DateTime tm = Utils.VismaDate2DateTime((int)chdt, (int)chtm);
+                    Utils.WriteLog($"Visma attribute change time for {s} is {tm}");
                     switch (row)                    
                     {
                         case 0:

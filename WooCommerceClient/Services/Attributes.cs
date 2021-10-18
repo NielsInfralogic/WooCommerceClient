@@ -23,8 +23,8 @@ namespace WooCommerceClient.Services
             // Aargange
             ///////////////
             ///
-            if (string.IsNullOrEmpty(SyncAttributeOnly) || SyncAttributeOnly.Contains("SyncAttributeForYear") || attributeChangeDates.ChDtYear >= latestSyncTime)
-                SyncAttributeTermsForYear(db, out errmsg, wooCommerceAttributes);
+           if (string.IsNullOrEmpty(SyncAttributeOnly) || SyncAttributeOnly.Contains("SyncAttributeForYear") || attributeChangeDates.ChDtYear >= latestSyncTime)
+               SyncAttributeTermsForYear(db, out errmsg, wooCommerceAttributes);
 
             //////////////////
             // Vol
@@ -108,9 +108,8 @@ namespace WooCommerceClient.Services
             // Now sync these types
             ProductAttribute a = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameType);
             int idTypeAttribute = a.id.Value;
-            bool res = SyncAttributeTerms(idTypeAttribute, attributeTerms).Result;
 
-            return res;
+            return SyncAttributeTerms(idTypeAttribute, attributeTerms).Result;
         }
 
         private static bool SyncAttributeTermsForGrape(DBaccess db, out string errmsg, List<ProductAttribute> wooCommerceAttributes)
@@ -180,6 +179,35 @@ namespace WooCommerceClient.Services
             return idCountryAttribute;
         }
 
+        private static void LinkRegionsToCountries(List<ProductAttributeTerm> existingWooCommerceTermsForCountry, List<RegionCountryRelation> regionCountryRelationList, ref List<ProductAttributeTerm> attributeTerms, string lang)
+        {
+            DBaccess db = new DBaccess();
+            // Add country id to region structure..
+            foreach (ProductAttributeTerm term in attributeTerms)
+            {
+                RegionCountryRelation r = regionCountryRelationList.FirstOrDefault(p => p.Region == term.name);
+                if (r != null)
+                {
+                    ProductAttributeTerm termCountry = existingWooCommerceTermsForCountry.FirstOrDefault(p => p.name == r.Country && p.lang == lang);
+                    term._country_id = termCountry != null ? termCountry.id : 0;
+                }
+                if (term._country_id == 0)
+                {
+                    // Cant find country for region - try alternative way,,
+                    string ctry = "";
+                    if (db.GetAlternativeCountryForRegion(term.name, lang == "en" ? 44 : 45, ref ctry, out string errmsg) == false)
+                        Utils.WriteLog("ERROR db.GetAlternativeCountryForRegion() - " + errmsg);
+                    Utils.WriteLog($"Found alternative {lang} country relation {ctry}");
+                    if (ctry != "")
+                    {
+                        ProductAttributeTerm termCountry = existingWooCommerceTermsForCountry.FirstOrDefault(p => p.name == ctry && p.lang == lang);
+                        term._country_id = termCountry != null ? termCountry.id : 0;
+                    }
+                }
+            }
+
+        }
+
         private static int SyncAttributeTermsForRegion(DBaccess db, out string errmsg, List<ProductAttribute> wooCommerceAttributes, List<ProductAttributeTerm> existingWooCommerceTermsForCountry)
         {
             Utils.WriteLog("Sync'ing terms for Regions..");
@@ -192,6 +220,10 @@ namespace WooCommerceClient.Services
                 Utils.WriteLog("ERROR db.GetAttributeTermsForRegion() - " + errmsg);
                 return 0;
             }
+
+            // Add country id to region structure..
+            LinkRegionsToCountries(existingWooCommerceTermsForCountry, regionCountryRelationList, ref attributeTerms, "da");
+
             if (Utils.ReadConfigInt32("DoTranslation", 0) > 0)
             {
                 List<RegionCountryRelation> regionCountryRelationList_en = new List<RegionCountryRelation>();
@@ -204,28 +236,7 @@ namespace WooCommerceClient.Services
                 EnsureEnglishAttributTerms(ref attributeTerms, ref attributeTerms_en);
 
                 // Add country id to region structure..
-                foreach (ProductAttributeTerm term in attributeTerms)
-                {
-                    RegionCountryRelation r = regionCountryRelationList.FirstOrDefault(p => p.Region == term.name);
-                    if (r != null)
-                    {
-                        ProductAttributeTerm termCountry = existingWooCommerceTermsForCountry.FirstOrDefault(p => p.name == r.Country && p.lang == "da");
-                        term._country_id = termCountry != null ? termCountry.id : 0;
-                    }
-                }
-
-
-                // Add country id to region structure..
-                foreach (ProductAttributeTerm term in attributeTerms_en)
-                {
-                    RegionCountryRelation r = regionCountryRelationList_en.FirstOrDefault(p => p.Region == term.name);
-                    if (r != null)
-                    {
-                        ProductAttributeTerm termCountry = existingWooCommerceTermsForCountry.FirstOrDefault(p => p.name == r.Country && p.lang == "en");
-                        term._country_id = termCountry != null ? termCountry.id : 0;
-                    }
-                }
-
+                LinkRegionsToCountries(existingWooCommerceTermsForCountry, regionCountryRelationList_en, ref attributeTerms_en, "en");
 
                 // add english to full list
                 foreach (ProductAttributeTerm term in attributeTerms_en)
@@ -243,9 +254,8 @@ namespace WooCommerceClient.Services
         private static List<ProductAttributeTerm> GetAttributeTermsForProducer(int idRegionAttribute, DBaccess db,
                             List<ProductAttributeTerm> existingWooCommerceTermsForCountry, out string errmsg)
         {
-
-
             // Read back for producer -> region and country relationships.
+         
             List<ProductAttributeTerm> existingWooCommerceTermsForRegion = WooCommerceHelpers.GetWooCommerceAttributeTerms(idRegionAttribute).Result;
             var attributeTerms = new List<ProductAttributeTerm>();
             var attributeTerms_en = new List<ProductAttributeTerm>();
@@ -266,9 +276,13 @@ namespace WooCommerceClient.Services
             {
                 Utils.WriteLog("ERROR db.GetProducerInfo(45) - " + errmsg);
             }
-            if (db.GetProducerInfo(ref producerInfo_en, 44, out errmsg) == false)
+
+            if (Utils.ReadConfigInt32("DoTranslation", 0) > 0)
             {
-                Utils.WriteLog("ERROR db.GetProducerInfo(44) - " + errmsg);
+                if (db.GetProducerInfo(ref producerInfo_en, 44, out errmsg) == false)
+                {
+                    Utils.WriteLog("ERROR db.GetProducerInfo(44) - " + errmsg);
+                }
             }
 
             foreach (ProductAttributeTerm term in attributeTerms)
@@ -594,7 +608,7 @@ namespace WooCommerceClient.Services
             ProductAttributeTerm existingAttribute = wooCommerceAttributeTerms.FirstOrDefault(p =>
                 p.lang == term.lang &&
                 ((term.visma_id > 0 && p.visma_id == term.visma_id) ||  // Try visma-id first!
-                 (p.name == term.name)) // fall back to name
+                 (term.visma_id <= 0 && p.name == term.name)) // fall back to name
             );
 
             ProductAttributeTerm newAttribute = null;
@@ -669,7 +683,7 @@ namespace WooCommerceClient.Services
             return true;
         }
 
-        public static bool ListUnrelatedEnglishAttributes()
+  /*      public static bool ListUnrelatedEnglishAttributes()
         {
             List<ProductAttribute> wooCommerceAttributes = WooCommerceHelpers.GetWooCommerceAttributes().Result;
             if (wooCommerceAttributes == null)
@@ -727,8 +741,8 @@ namespace WooCommerceClient.Services
 
             return true;
         }
-
-        public static List<int> GetUnrelatedEnglishAttributes(int idAttribute)
+  */
+    /*    public static List<int> GetUnrelatedEnglishAttributes(int idAttribute)
         {
             List<int> unrelatedAttributes = new List<int>();
             MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
@@ -749,7 +763,7 @@ namespace WooCommerceClient.Services
 
             return unrelatedAttributes;
         }
-
+*/
 
         private static async Task<bool> DeleteUnusedProducers(List<ProductAttributeTerm> usedattributeTermsProducers)
         {

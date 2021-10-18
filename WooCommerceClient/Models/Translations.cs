@@ -19,11 +19,6 @@ namespace WooCommerceClient.Models
         [DataMember(EmitDefaultValue = false)]
         public int? en { get; set; } = 0;
 
-        //[IgnoreDataMember]
-        //public string nameforda { get; set; }
-
-        //[IgnoreDataMember]
-        //public string nameforen { get; set; }
 
     }
 }

@@ -19,6 +19,7 @@ namespace WooCommerceClient.Services
 
         public override T DeserializeJSon<T>(string jsonString)
         {
+            //Utils.WriteLog(jsonString);
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 

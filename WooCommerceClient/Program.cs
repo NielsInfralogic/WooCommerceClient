@@ -87,7 +87,7 @@ namespace WooCommerceClient
             if (Utils.ReadConfigInt32("ListAllUnrelatedAttributes", 0) > 0)
             {
 
-                Attributes.ListUnrelatedEnglishAttributes();
+               // Attributes.ListUnrelatedEnglishAttributes();
                
 
                 return;
@@ -105,8 +105,8 @@ namespace WooCommerceClient
             }
 
             // skip tags,attributes if no products to update
-            if (productsTest.Count > 0 || (Utils.ReadConfigInt32("SyncProducts", 0) == 0 && Utils.ReadConfigInt32("SyncStocks", 0) == 0))
-            {
+            //if (productsTest.Count > 0 || (Utils.ReadConfigInt32("SyncProducts", 0) == 0 && Utils.ReadConfigInt32("SyncStocks", 0) == 0))
+           // {
                 //////////////////////////////
                 /// SyncTags
                 //////////////////////////////
@@ -135,7 +135,7 @@ namespace WooCommerceClient
                 {
                     Categories.Syns();
                 }
-            }
+            //}
 
             //////////////////////////////
             /// SyncProducts/SyncStocks

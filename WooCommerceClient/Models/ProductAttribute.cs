@@ -148,9 +148,9 @@ namespace WooCommerceClient.Models
         /// <summary>
         /// Point to master attribute ID
         /// </summary>
-        [DataMember(EmitDefaultValue = false)]
-        [IgnoreDataMember]
-        public Translations translations { get; set; }
+      //  [DataMember(EmitDefaultValue = false)]
+      //  [IgnoreDataMember]
+      //  public Translations translations { get; set; }
 
     }
 
