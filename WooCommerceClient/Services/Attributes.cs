@@ -73,6 +73,11 @@ namespace WooCommerceClient.Services
                     // Delete unused producers
                     if (string.IsNullOrEmpty(SyncAttributeOnly) || SyncAttributeOnly.Contains("DeleteUnusedAttributeTerms"))
                         DeleteUnusedAttributeTerms(db, out errmsg, idProducentAttribute);
+
+                    if (Utils.ReadConfigInt32("DeleteIllegalProducers", 0) > 0)
+                    {
+                        var _ = DeleteIllegalProducers();
+                    }
                 }
             }
                              
@@ -810,6 +815,46 @@ namespace WooCommerceClient.Services
                 }
             }
 
+            return true;
+        }
+
+        public static async Task<bool> DeleteIllegalProducers()
+        {
+            MyRestAPI rest = new MyRestAPI(Utils.ReadConfigString("WooCommerceUrl", ""),
+                       Utils.ReadConfigString("WooCommerceKey", ""),
+                       Utils.ReadConfigString("WooCommerceSecret", ""));
+            WCObject wc = new WCObject(rest);
+
+            List<ProductAttribute> wooCommerceAttributes = WooCommerceHelpers.GetWooCommerceAttributes().Result;
+
+            ProductAttribute a = wooCommerceAttributes.FirstOrDefault(p => p.name == Constants.AttributeNameProducer);
+            if (a == null)
+                return false;
+            int idProducentAttribute = a.id.Value;
+            List<ProductAttributeTerm> existingWooCommerceAttributeTerms = WooCommerceHelpers.GetWooCommerceAttributeTerms(idProducentAttribute).Result;
+            if (existingWooCommerceAttributeTerms == null)
+                return false;
+
+            foreach(ProductAttributeTerm term in existingWooCommerceAttributeTerms)
+            {
+                if (term.visma_id <= 0)
+                {
+                    Utils.WriteLog($"WARNING: Illegal visma-ID found for term {term.id.Value} {term.name}");
+                    string deleteString = "";
+                    Utils.WriteLog($"DeleteUnusedProducers: Term {term.name} is not used!");
+                    try
+                    {
+                        deleteString = await wc.Attribute.Terms.Delete(term.id.Value, idProducentAttribute, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.WriteLog($"Exception  wc.Attribute.Terms.Delete() - {ex.Message}");
+                        Utils.WriteLog($"{ex.StackTrace}");
+                        break;
+                    }
+                    Utils.WriteLog($"Producer {term.name} deleted {deleteString}.");
+                }
+            }
             return true;
         }
 
